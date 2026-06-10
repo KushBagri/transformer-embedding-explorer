@@ -1,5 +1,6 @@
 import { useState } from "react";
 import VectorPlot from "./components/VectorPlot";
+import InformationRecovery from "./components/InformationRecovery";
 
 function addVectors(a: number[], b: number[]) {
   return a.map((value, index) => value + b[index]);
@@ -77,7 +78,11 @@ export default function App() {
       position={positionEmbedding}
       combined={combinedEmbedding}
     />
-
+    <InformationRecovery
+      token={tokenEmbedding}
+      position={positionEmbedding}
+      combined={combinedEmbedding}
+    />
     <hr />
 
     <h2>Token Controls</h2>
