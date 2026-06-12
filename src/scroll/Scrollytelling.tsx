@@ -3,45 +3,60 @@
 import { Suspense } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { SECTIONS } from '../sections/sections.config'
+import { EASE_OUT } from '../ui/motion'
 
 function Hero() {
   const reduce = useReducedMotion()
+  const show = (delay: number) =>
+    reduce
+      ? { initial: false as const }
+      : {
+          initial: { opacity: 0, y: 22 },
+          animate: { opacity: 1, y: 0 },
+          transition: { duration: 0.9, delay, ease: EASE_OUT },
+        }
+
   return (
-    <header className="mx-auto flex min-h-screen max-w-4xl flex-col items-center justify-center px-6 text-center">
-      <motion.p
-        className="mb-4 text-sm font-semibold uppercase tracking-[0.3em] text-prose-dim"
-        initial={reduce ? false : { opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
+    <header className="relative mx-auto flex min-h-screen max-w-4xl flex-col items-center justify-center px-6 text-center">
+      <motion.div
+        {...show(0)}
+        className="mb-7 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-medium uppercase tracking-[0.25em] text-prose-dim backdrop-blur-sm"
       >
+        <span className="h-1.5 w-1.5 rounded-full bg-combined shadow-[0_0_10px_2px_rgba(167,139,250,0.8)]" />
         Transformer Embedding Explorer
-      </motion.p>
+      </motion.div>
+
       <motion.h1
-        className="text-balance text-4xl font-semibold leading-tight tracking-tight text-prose-bright sm:text-6xl"
-        initial={reduce ? false : { opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, delay: 0.1 }}
+        {...show(0.08)}
+        className="font-display text-5xl leading-[1.05] tracking-tight text-prose-bright sm:text-7xl"
       >
-        We add the words and their positions together.
+        We add the words and their
+        <br className="hidden sm:block" /> positions together.
         <br />
-        <span className="text-combined">So why don't we lose the order?</span>
+        <span className="text-aurora italic">So why don't we lose the order?</span>
       </motion.h1>
+
       <motion.p
-        className="mt-6 max-w-xl text-lg text-prose"
-        initial={reduce ? false : { opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.7, delay: 0.25 }}
+        {...show(0.2)}
+        className="mt-8 max-w-xl text-lg leading-relaxed text-prose"
       >
         Most people guess the information is lost. It isn't. Scroll to see why —
-        every visual is computed from the real math, live.
+        every visual is computed from the real transformer math, live.
       </motion.p>
+
       <motion.div
-        className="mt-12 text-prose-dim"
-        animate={reduce ? undefined : { y: [0, 8, 0] }}
-        transition={{ duration: 1.6, repeat: Infinity }}
+        {...show(0.32)}
+        className="mt-14 flex flex-col items-center gap-2 text-prose-dim"
         aria-hidden
       >
-        ↓
+        <span className="text-[11px] uppercase tracking-[0.3em]">Scroll</span>
+        <motion.span
+          animate={reduce ? undefined : { y: [0, 7, 0] }}
+          transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+          className="text-lg"
+        >
+          ↓
+        </motion.span>
       </motion.div>
     </header>
   )
@@ -49,7 +64,7 @@ function Hero() {
 
 export function Scrollytelling() {
   return (
-    <main>
+    <main className="relative">
       <Hero />
       <Suspense
         fallback={
@@ -60,9 +75,14 @@ export function Scrollytelling() {
           <Component key={id} />
         ))}
       </Suspense>
-      <footer className="mx-auto max-w-4xl px-6 py-24 text-center text-sm text-prose-dim">
-        Coming next — a 3D vector space, recovering the parts by projection,
-        how the subspaces are learned, Q/K/V, and a free-play sandbox.
+      <footer className="mx-auto max-w-4xl px-6 py-28 text-center">
+        <p className="font-display text-2xl italic text-prose-bright">
+          More of the machine, coming soon.
+        </p>
+        <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-prose-dim">
+          Next: how the subspaces are learned, the Q/K/V projections in 3D, and a
+          free-play transformer sandbox.
+        </p>
       </footer>
     </main>
   )
