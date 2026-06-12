@@ -8,7 +8,8 @@ import { AdditionSection } from './AdditionSection'
 import { HighDimSection } from './HighDimSection'
 import { SinusoidalSection } from './SinusoidalSection'
 import { AttentionSection } from './AttentionSection'
-// 3D section is lazy (code-splits three.js / r3f) — see RecoveryLazy.
+// 3D sections are lazy (code-split three.js / r3f) — see *Lazy modules.
+import { EmbeddingSection } from './EmbeddingLazy'
 import { RecoverySection } from './RecoveryLazy'
 
 export interface SectionEntry {
@@ -19,6 +20,7 @@ export interface SectionEntry {
 export const SECTIONS: SectionEntry[] = [
   { id: 'why-add', Component: MotivationSection },
   { id: 'cold-open', Component: ColdOpenSection },
+  { id: 'embeddings', Component: EmbeddingSection },
   { id: 'addition', Component: AdditionSection },
   { id: 'high-dim', Component: HighDimSection },
   { id: 'recovery', Component: RecoverySection },
