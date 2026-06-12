@@ -69,6 +69,34 @@ export function AdditionSection() {
         </p>
       </Analogy>
 
+      <Analogy label="Picture this — a shopping cart, not a blender">
+        <p>
+          Here's the same idea as a question about <em>kinds of things</em>. Toss a bag
+          of <span className="text-token-soft">apples</span> and a bag of{' '}
+          <span className="text-position-soft">bananas</span> into one shopping cart.
+          The cart now holds a single jumbled pile — your{' '}
+          <span className="text-combined-soft">combined</span> vector. Can you still
+          get the apples back? Of course: you reach in and pick them out. Apples and
+          bananas are <strong>different objects</strong>, so they never fuse. You can
+          always sort one from the other.
+        </p>
+        <p>
+          Now run the apples and bananas through a <em>blender</em>. You get a smooth
+          beige puree, and no spoon on earth can pull the apple back out from the
+          banana. They share the same "direction" now — pure mush — and the split is
+          gone for good.
+        </p>
+        <p>
+          That blender is exactly the Northeast trap below, and the cart is the
+          East-then-North map above. Adding never blends on its own; it blends only
+          when the two ingredients point the same way. Keep{' '}
+          <span className="text-token-soft">meaning</span> and{' '}
+          <span className="text-position-soft">position</span> as different "objects"
+          — different directions — and the sum stays a cart you can unpack, not a
+          smoothie you can't.
+        </p>
+      </Analogy>
+
       <p>
         That's all adding two vectors is. The{' '}
         <span className="text-combined-soft">combined</span> arrow is your final
@@ -157,6 +185,17 @@ export function AdditionSection() {
         <em>laid out</em> so it can be pulled back apart, and we now have the
         condition: <strong>meaning and position must point in different
         directions</strong>, ideally perpendicular ones.
+      </p>
+      <p>
+        You already trust this in everyday life. A single dot on your screen has{' '}
+        <em>one</em> color, stored as three numbers — how much red, how much green,
+        how much blue. Nobody ever stares at a pixel and groans "we can't tell how
+        much red went in." You just read the red channel; the green and blue sit in
+        their own slots and don't interfere. <span className="text-token-soft">Token</span>{' '}
+        and <span className="text-position-soft">position</span> are channels of one
+        high-dimensional "pixel" in exactly the same way: a single{' '}
+        <span className="text-combined-soft">combined</span> vector, with each signal
+        on its own independent channel, read off whenever it's needed.
       </p>
       <p>
         But a word carries far more than two things — its meaning, its position,

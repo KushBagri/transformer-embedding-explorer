@@ -12,6 +12,9 @@ import { Card } from '../ui/Card'
 import { Callout } from '../ui/Callout'
 import { Slider } from '../ui/Slider'
 import { Analogy } from '../ui/Analogy'
+import { SubHeading } from '../ui/SubHeading'
+import { MathInline } from '../ui/MathInline'
+import { Formula } from '../ui/Formula'
 import { VectorScene } from '../viz/three/VectorScene'
 import { Arrow3D } from '../viz/three/Arrow3D'
 
@@ -152,6 +155,110 @@ export function RecoverySection() {
         part and throws away the position part. The only difference in a real
         model: the "floor" isn't the literal ground but a tilted, high-dimensional
         subspace, and "straight down" means perpendicular to it.
+      </p>
+
+      <SubHeading>A filter is just a matrix</SubHeading>
+      <p>
+        "Dropping to the shadow" sounds geometric and fuzzy. It is not. The shadow is
+        computed by an ordinary <strong className="text-prose-bright">matrix multiplication</strong> — a
+        grid of numbers you multiply your vector by. A matrix used this way is a{' '}
+        <strong className="text-prose-bright">filter</strong>: it lets some directions of
+        the vector pass through and zeros out the rest. Let's build one by hand, small
+        enough that you can check every number yourself.
+      </p>
+      <p>
+        Shrink the world down to just four dimensions. Put{' '}
+        <span className="text-token-soft">meaning</span> in the first two slots and{' '}
+        <span className="text-position-soft">position</span> in the last two — that is
+        our toy version of "perpendicular directions":
+      </p>
+      <div className="rounded-xl border border-edge bg-surface-2 p-3 font-mono text-xs leading-relaxed text-prose">
+        <span className="text-token-soft">A</span> = [ 1, 2, 0, 0 ]&nbsp;&nbsp;&nbsp;<span className="text-prose-dim">// meaning — lives in dims 0,1</span><br />
+        <span className="text-position-soft">B</span> = [ 0, 0, 3, 4 ]&nbsp;&nbsp;&nbsp;<span className="text-prose-dim">// position — lives in dims 2,3</span><br />
+        <br />
+        <span className="text-prose-dim">// are they perpendicular? dot product = sum of slot-by-slot products</span><br />
+        <span className="text-token-soft">A</span>·<span className="text-position-soft">B</span> = (1)(0) + (2)(0) + (0)(3) + (0)(4) = <span className="text-prose-bright">0</span>&nbsp;&nbsp;✓<br />
+        <br />
+        <span className="text-prose-dim">// add them — this is the single combined vector the model stores</span><br />
+        <span className="text-combined-soft">C</span> = <span className="text-token-soft">A</span> + <span className="text-position-soft">B</span> = [ 1, 2, 3, 4 ]
+      </div>
+      <p>
+        A <MathInline>dot product</MathInline> of zero is the number-on-screen proof that
+        <span className="text-token-soft"> A</span> and{' '}
+        <span className="text-position-soft">B</span> point in non-overlapping
+        directions. Now build the filter. To keep only meaning, write a matrix that
+        copies the first two slots and erases the last two — an identity on the meaning
+        rows, zeros everywhere else:
+      </p>
+      <div className="rounded-xl border border-edge bg-surface-2 p-3 font-mono text-xs leading-relaxed text-prose">
+        <span className="text-token-soft">W_token</span> = | 1 0 0 0 |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span className="text-position-soft">W_pos</span> = | 0 0 0 0 |<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| 0 1 0 0 |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| 0 0 0 0 |<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| 0 0 0 0 |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| 0 0 1 0 |<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| 0 0 0 0 |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| 0 0 0 1 |<br />
+        <br />
+        <span className="text-prose-dim">// each output slot = that row, multiplied slot-by-slot into C, summed</span><br />
+        <span className="text-token-soft">W_token</span>·<span className="text-combined-soft">C</span> = [ 1·1, 1·2, 0, 0 ] = [ 1, 2, 0, 0 ] = <span className="text-token-soft">A</span>&nbsp;&nbsp;✓<br />
+        <span className="text-position-soft">W_pos</span>&nbsp;&nbsp;·<span className="text-combined-soft">C</span> = [ 0, 0, 1·3, 1·4 ] = [ 0, 0, 3, 4 ] = <span className="text-position-soft">B</span>&nbsp;&nbsp;✓
+      </div>
+      <p>
+        Read those two lines slowly — they are the whole payoff. From the one combined
+        vector <span className="text-combined-soft">C</span> = [1, 2, 3, 4], one matrix
+        pulled back <span className="text-token-soft">A</span> = [1, 2, 0, 0]{' '}
+        <em>exactly</em>, and a second pulled back{' '}
+        <span className="text-position-soft">B</span> = [0, 0, 3, 4]{' '}
+        <em>exactly</em>. Nothing was lost in the addition. The information was just
+        waiting for the right filter.
+      </p>
+      <p>
+        Why is it guaranteed to work, and not just luck with these numbers? One line of
+        algebra. Matrix multiplication is <strong className="text-prose-bright">linear</strong>,
+        which means multiplying a sum is the same as multiplying each piece and adding:
+      </p>
+      <Formula label="linearity is the engine — the filter never sees C as a tangle, only as A plus B">
+        <span className="text-token-soft">W_token</span>·<span className="text-combined-soft">C</span> = <span className="text-token-soft">W_token</span>·(<span className="text-token-soft">A</span> + <span className="text-position-soft">B</span>) = <span className="text-token-soft">W_token</span>·<span className="text-token-soft">A</span> + <span className="text-token-soft">W_token</span>·<span className="text-position-soft">B</span> = <span className="text-token-soft">A</span> + <span className="text-prose-dim">0</span> = <span className="text-token-soft">A</span>
+      </Formula>
+      <p>
+        The filter is designed to keep meaning (<MathInline>W_token·A = A</MathInline>)
+        and to kill position (<MathInline>W_token·B = 0</MathInline>). Because of
+        linearity, those two effects happen independently inside the sum: the position
+        term collapses to zero and quietly drops out, leaving meaning standing alone.
+        Swap the roles and you have <span className="text-position-soft">W_pos</span>,
+        which kills meaning and keeps position. That is the shadow and the height, written
+        as arithmetic.
+      </p>
+      <Analogy label="Picture this — a sound mixing board">
+        <p>
+          You are at a concert. Vocals, guitar, bass, and drums all reach the
+          soundboard as a single combined signal —{' '}
+          <span className="text-combined-soft">C</span> = vocals + guitar + bass +
+          drums — one wire carrying everything at once. It looks hopelessly blended,
+          the way [1, 2, 3, 4] looks like one lump of numbers.
+        </p>
+        <p>
+          Yet the sound engineer slides one fader and out comes <strong>just the
+          vocals</strong>; another fader, <strong>just the bass</strong>. Each channel
+          on the board is tuned to let one instrument through and block the rest —
+          exactly what <span className="text-token-soft">W_token</span> and{' '}
+          <span className="text-position-soft">W_pos</span> just did. The instruments
+          were never destroyed by being summed onto one wire. They were separable all
+          along, because the board knows which channel each one lives on.
+        </p>
+      </Analogy>
+      <p>
+        Here is the bridge to everything that follows. We hand-wrote{' '}
+        <span className="text-token-soft">W_token</span> and{' '}
+        <span className="text-position-soft">W_pos</span> as tidy grids of ones and
+        zeros. A real Transformer does not. It <strong className="text-prose-bright">learns</strong>
+        its filters — the matrices called <MathInline>W_Q</MathInline>,{' '}
+        <MathInline>W_K</MathInline>, and <MathInline>W_V</MathInline> that the next
+        section is built around — by adjusting their numbers during training until they
+        isolate whatever the task needs. Same idea, three differences: the numbers are
+        messy fractions instead of clean 1s and 0s; the meaning and position subspaces
+        are tilted at odd angles rather than lined up with the slots; and the recovery
+        is <em>approximately</em> exact instead of perfectly exact, because real
+        embeddings are only <em>nearly</em> perpendicular. The mixing board is the same
+        mixing board — its faders were simply tuned by gradient descent rather than by
+        us.
       </p>
 
       <Callout accent="combined">

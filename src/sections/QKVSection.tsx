@@ -178,9 +178,10 @@ export function QKVSection() {
       </p>
       <p>
         Take the <MathInline>q</MathInline> of one word and the{' '}
-        <MathInline>k</MathInline> of another, dot them together for a relevance
-        score, do it for every pair, and softmax each row — and you have exactly
-        the attention grid in the next section.
+        <MathInline>k</MathInline> of another and dot them together for a relevance
+        score, then do it for every pair. The next section cracks that single score
+        open — it turns out one dot product secretly answers <em>four</em> questions
+        at once — before attention softmaxes the scores into the final grid.
       </p>
 
       <Detail summary="Going deeper: why a dot product, the √d scaling, and many heads">

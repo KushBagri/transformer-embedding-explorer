@@ -10,6 +10,7 @@ import { Slider } from '../ui/Slider'
 import { Toggle } from '../ui/Toggle'
 import { Detail } from '../ui/Detail'
 import { Analogy } from '../ui/Analogy'
+import { SubHeading } from '../ui/SubHeading'
 import { Heatmap } from '../viz/primitives/Heatmap'
 import { useModel } from '../state/modelContext'
 import { PEKind } from '../math/types'
@@ -98,6 +99,76 @@ export function AttentionSection() {
           blend becomes its new, context-aware self.
         </li>
       </ol>
+
+      <SubHeading>A zoo of specialised heads</SubHeading>
+      <p>
+        A model doesn't run this just once. It runs it through dozens of separate{' '}
+        <strong>heads</strong> at the same time — each its own little expert with its
+        own way of asking the question and reading the name-tags. Crucially, each head
+        cares about a <strong>different relationship</strong> between words.
+      </p>
+      <Analogy label="Picture this — a chef's tasting">
+        <p>
+          A chef tastes a finished sauce. Everything is already stirred together into
+          one mouthful — yet she says, without hesitation: <em>"I taste tomato. And
+          basil. And garlic."</em> Each taste bud is tuned to a different chemical
+          signature, so it picks out its one ingredient from the blend.
+        </p>
+        <p>
+          Attention heads are taste buds. The vector flowing in already has{' '}
+          <span className="text-token-soft">meaning</span> and{' '}
+          <span className="text-position-soft">position</span> stirred together. But
+          each head is tuned — by what it learned during training — to taste one
+          particular relationship and ignore the rest.
+        </p>
+      </Analogy>
+      <p>
+        These flavours are not made up. When researchers open a trained model and
+        watch its heads, the same recognisable types keep showing up:
+      </p>
+      <ul className="flex list-disc flex-col gap-2 pl-5 marker:text-prose-dim">
+        <li>
+          <strong className="text-position-soft">Previous-token heads.</strong> They
+          do one stubborn thing: look at the word immediately before. Pure{' '}
+          <span className="text-position-soft">position</span>, no regard for meaning —
+          so they paint a single bright stripe just off the diagonal of the grid.
+        </li>
+        <li>
+          <strong className="text-combined-soft">Induction heads.</strong> They blend{' '}
+          <span className="text-token-soft">meaning</span> and{' '}
+          <span className="text-position-soft">position</span> to continue a pattern
+          they've already seen. Having met <em>"Harry Potter"</em> once, when{' '}
+          <em>"Harry"</em> reappears the head reaches back to that earlier{' '}
+          <em>"Harry"</em> and copies what came next — <em>"Potter"</em>.
+        </li>
+        <li>
+          <strong className="text-token-soft">Semantic and syntactic heads.</strong>{' '}
+          They chase <span className="text-token-soft">meaning</span>, wherever it
+          sits — a verb finding its subject, a pronoun finding the noun it stands for —
+          however many words apart the two are.
+        </li>
+      </ul>
+      <p>
+        Each type leans on a different slice of that four-way split of the matching
+        score: a previous-token head lives almost entirely on the{' '}
+        <span className="text-position-soft">position-with-position</span> term, a
+        semantic head on the <span className="text-token-soft">meaning-with-meaning</span>{' '}
+        term, and an induction head needs both at once. One input vector, read many
+        different ways — exactly because the two signals were added without erasing
+        each other.
+      </p>
+      <p>
+        Why trust any of this rather than treat it as a nice story? Because we can
+        check it, and people have. <span className="text-prose-bright">Interpretability
+        researchers</span> — scientists who probe a trained network's internals — have
+        pointed at individual heads in real models, measured them, and found them doing
+        exactly these jobs with eerie consistency: a previous-token head that attends
+        one step back over and over, an induction head that reliably completes repeats.
+        They've even measured how cleanly the <span className="text-token-soft">meaning</span>{' '}
+        and <span className="text-position-soft">position</span> directions stay
+        separated inside the trained weights, and found the separation high. The
+        picture isn't a hopeful diagram; it's something that has been observed.
+      </p>
 
       <p>
         The grid on the right shows step 2 for the whole sentence.{' '}

@@ -272,6 +272,74 @@ export function HighDimSection() {
         paradox.
       </p>
 
+      <SubHeading>More rooms than there are dimensions</SubHeading>
+      <p>
+        Here's the part that sounds impossible. A 512-dimensional space has exactly{' '}
+        <strong>512</strong> directions that are <em>perfectly</em> perpendicular to
+        one another — no more, just as a flat map has exactly 2 (East, North) and a
+        room has exactly 3 (length, width, height). Try to add a 513th perfectly
+        perpendicular direction and there is literally nowhere to put it. So far it
+        looks like room runs out at 512 things.
+      </p>
+      <p>
+        But you don't need <em>perfect</em> right angles. You only need{' '}
+        <strong className="text-combined-soft">non-interfering</strong>, and the
+        section already showed that a tiny overlap is as good as zero. So relax the
+        rule from "exactly 90°" to "between 80° and 100°" — a hair off square — and
+        the count of directions you can fit stops being{' '}
+        <MathInline>d</MathInline> and starts growing <strong>exponentially</strong>{' '}
+        with <MathInline>d</MathInline>. Where 3D buys you 3 axes, a few hundred
+        dimensions buy you <em>billions</em> of nearly-square directions. That is why
+        one vector has room for not just meaning and position but thousands of
+        features at once — part of speech, tense, sentiment, topic — each on its own
+        almost-perpendicular direction.
+      </p>
+
+      <Analogy label="Picture this — darts on a globe">
+        <p>
+          You and a friend each throw a dart, blindfolded, at a globe. On a small
+          beach ball the darts often land close together — there just isn't much
+          surface, so near-misses are common. That's the flat, low-dimensional world,
+          where two random arrows easily end up pointing the same way.
+        </p>
+        <p>
+          Now blow the globe up to a million dimensions. The surface is so vast that
+          two blind throws land <strong>far apart, every time</strong> — and you can
+          keep throwing darts and they keep landing far from <em>all</em> the earlier
+          ones. Each dart is a feature claiming its own near-square direction; the
+          enormous surface is why there's room for so many.
+        </p>
+      </Analogy>
+
+      <p>
+        This near-perpendicular packing has a name: <strong>quasi-orthogonality</strong>,
+        a consequence of what mathematicians call the{' '}
+        <strong>Johnson–Lindenstrauss</strong> result — the fact that you can crowd far
+        more "almost-square" directions into <MathInline>d</MathInline> dimensions than{' '}
+        <MathInline>d</MathInline> itself. Storing many features in one vector this way,
+        leaning on that tiny tolerated overlap, is called{' '}
+        <strong className="text-combined-soft">superposition</strong>.
+      </p>
+      <Detail summary="Dig deeper: how many directions, and where superposition comes from">
+        <p>
+          A quick sense of the scale. Pack random unit arrows into{' '}
+          <MathInline>d = 512</MathInline> dimensions and any two of them overlap by
+          only about <MathInline>|cos| ≈ 0.035</MathInline> — the same 88° figure the
+          chart shows at 512. The number you can pack before <em>some</em> pair drifts
+          past your tolerance grows like <MathInline>e^{`{c·d}`}</MathInline>:
+          exponential in <MathInline>d</MathInline>. That is the gap between{' '}
+          <strong>512</strong> perfectly-perpendicular axes and <strong>billions</strong>{' '}
+          of merely-near-perpendicular ones.
+        </p>
+        <p>
+          Anthropic's paper <strong>"Toy Models of Superposition"</strong> studies this
+          directly: it shows small networks deliberately storing <em>more</em> distinct
+          features than they have dimensions, by tucking each onto its own
+          almost-orthogonal direction and tolerating the faint crosstalk. Meaning plus
+          position is just the two-feature case of that same trick.
+        </p>
+      </Detail>
+
       <SubHeading>"Different directions," not "different dimensions"</SubHeading>
       <p>
         Now the clarification that trips up almost everyone — and it fixes

@@ -12,9 +12,14 @@ export interface HeatmapProps {
   rowLabels?: string[]
   colLabels?: string[]
   highlightRow?: number | null
+  /** Highlight a single column (pairs with highlightRow to spotlight one cell). */
+  highlightCol?: number | null
   onHoverRow?: (row: number | null) => void
   xTitle?: string
   yTitle?: string
+  /** Force the color-scale magnitude so several heatmaps share one scale and
+   *  are visually comparable (e.g. four addends and their sum). */
+  max?: number
 }
 
 export function Heatmap({
@@ -24,9 +29,11 @@ export function Heatmap({
   rowLabels,
   colLabels,
   highlightRow = null,
+  highlightCol = null,
   onHoverRow,
   xTitle,
   yTitle,
+  max: maxOverride,
 }: HeatmapProps) {
   const left = rowLabels ? 64 : 8
   const top = colLabels ? 56 : 8
@@ -36,17 +43,22 @@ export function Heatmap({
   const height = top + gridH + (xTitle ? 22 : 8)
 
   let max = 1
-  if (mode === 'diverging') max = absMax(data.data) || 1
+  if (maxOverride != null) max = maxOverride || 1
+  else if (mode === 'diverging') max = absMax(data.data) || 1
   else for (let i = 0; i < data.data.length; i++) max = Math.max(max, data.data[i])
 
   const color = (v: number) =>
     mode === 'diverging' ? divergingColor(v, max) : sequentialColor(v, max)
 
+  const spotlight = highlightRow != null && highlightCol != null
   const cells = []
   for (let r = 0; r < data.rows; r++) {
     for (let c = 0; c < data.cols; c++) {
       const v = data.data[r * data.cols + c]
-      const dim = highlightRow != null && highlightRow !== r
+      const isCell = spotlight && highlightRow === r && highlightCol === c
+      const dim = spotlight
+        ? !isCell
+        : highlightRow != null && highlightRow !== r
       cells.push(
         <rect
           key={`${r}-${c}`}
@@ -56,6 +68,8 @@ export function Heatmap({
           height={cell - 1}
           fill={color(v)}
           opacity={dim ? 0.28 : 1}
+          stroke={isCell ? '#f6f5fd' : undefined}
+          strokeWidth={isCell ? 1.5 : undefined}
           rx={2}
           onMouseEnter={onHoverRow ? () => onHoverRow(r) : undefined}
         >

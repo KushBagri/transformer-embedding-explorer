@@ -12,6 +12,8 @@ import { Slider } from '../ui/Slider'
 import { Formula } from '../ui/Formula'
 import { Detail } from '../ui/Detail'
 import { Analogy } from '../ui/Analogy'
+import { SubHeading } from '../ui/SubHeading'
+import { MathInline } from '../ui/MathInline'
 import { Heatmap } from '../viz/primitives/Heatmap'
 import { LinePlot, type Series } from '../viz/primitives/LinePlot'
 import { sinusoidalPE, frequencyOfDim } from '../math/positional'
@@ -156,6 +158,36 @@ export function SinusoidalSection() {
         {dModel > 8 ? ', …' : ''}]
       </p>
 
+      <SubHeading>Why the code stays small</SubHeading>
+      <p>
+        Look closely at the numbers in that readout, and at the colours in the heatmap
+        on the right. Every value sits between <MathInline>-1</MathInline> and{' '}
+        <MathInline>+1</MathInline>. The colours never blow out to a brighter extreme,
+        no matter how far you drag the <span className="text-position-soft">read
+        position</span> slider or how long you make the sentence. That is not luck.
+        Every entry of this code is a sine or a cosine, and a sine or cosine can only
+        ever return a number in <MathInline>[-1, 1]</MathInline>. The code is{' '}
+        <strong>bounded</strong> by construction.
+      </p>
+      <p>
+        Now remember why that matters. The lazy labels 0, 1, 2, … grew without limit:
+        by word 5000 the position number is 5000, while a typical{' '}
+        <span className="text-token-soft">word-embedding</span> value is a small
+        fraction near zero. Add those two together and the position number{' '}
+        <strong>towers over</strong> the meaning — like shouting a page number so
+        loudly you can't hear the sentence on the page. The sum would carry position
+        and almost nothing else.
+      </p>
+      <p>
+        Waves fix this. Because <span className="text-position-soft">position</span>{' '}
+        stays in <MathInline>[-1, 1]</MathInline>, it lands at the <em>same small
+        scale</em> as <span className="text-token-soft">meaning</span> — and it stays
+        there for word 5, word 50, or word 5000 alike. So when we form the{' '}
+        <span className="text-combined-soft">combined</span> vector by adding the two,
+        neither one drowns out the other. Keeping the code bounded and comparable in
+        size is precisely what lets both signals survive the addition.
+      </p>
+
       <Detail summary="Why both sine AND cosine — and why it loves relative position">
         <p>
           Pairing a sine with a cosine at each frequency turns "shift by k
@@ -171,6 +203,23 @@ export function SinusoidalSection() {
           longer than any it saw in training.
         </p>
       </Detail>
+
+      <Analogy label="Picture this — a turntable">
+        <p>
+          Picture a sine and its paired cosine as a single dot on a spinning record.
+          Where the dot sits on the record tells you the position. To ask "where was
+          this dot a few slots ago?" you don't recompute anything — you just{' '}
+          <strong>rotate the record</strong> backward by a fixed angle.
+        </p>
+        <p>
+          Advancing <MathInline>k</MathInline> positions is always the same
+          rotation, wherever the dot started. And "rotate by a fixed amount" is exactly
+          what one fixed <strong>matrix multiply</strong> does. So the model can learn
+          the single move "look 3 tokens back" once, as one matrix, and apply that same
+          move at every position in every sentence — which is why{' '}
+          <span className="text-position-soft">relative</span> distance comes for free.
+        </p>
+      </Analogy>
 
       <Callout accent="position">
         A stack of waves — fast ones for fine position, slow ones for coarse — is

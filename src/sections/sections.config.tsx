@@ -9,6 +9,7 @@ import { HighDimSection } from './HighDimSection'
 import { DifferentiationSection } from './DifferentiationSection'
 import { SinusoidalSection } from './SinusoidalSection'
 import { QKVSection } from './QKVSection'
+import { FourTermSection } from './FourTermSection'
 import { AttentionSection } from './AttentionSection'
 // 3D sections are lazy (code-split three.js / r3f) — see threeSections.
 import { EmbeddingSection, RecoverySection } from './threeSections'
@@ -28,5 +29,6 @@ export const SECTIONS: SectionEntry[] = [
   { id: 'differentiate', Component: DifferentiationSection },
   { id: 'sinusoidal', Component: SinusoidalSection },
   { id: 'qkv', Component: QKVSection },
+  { id: 'four-term', Component: FourTermSection },
   { id: 'attention', Component: AttentionSection },
 ]
