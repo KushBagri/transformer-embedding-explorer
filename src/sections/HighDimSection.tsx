@@ -10,6 +10,7 @@ import { Card } from '../ui/Card'
 import { Callout } from '../ui/Callout'
 import { Slider } from '../ui/Slider'
 import { Detail } from '../ui/Detail'
+import { Analogy } from '../ui/Analogy'
 import { mulberry32, gaussian } from '../math/rng'
 import { cosine } from '../math/vector'
 
@@ -131,21 +132,53 @@ export function HighDimSection() {
       )}
     >
       <p>
-        Last section left us with a condition: meaning and position can only be
-        pulled back apart if they point in <strong>different directions</strong> —
-        ideally perpendicular ones, so neither leaks into the other. So the real
-        question is: can the model always <em>find</em> enough perpendicular
-        directions to give every signal its own? That depends on how many
-        dimensions it has.
+        The treasure map left us with a rule: meaning and position can be pulled
+        apart only if they point in <strong>different directions</strong> — best
+        of all, at right angles, like East and North. So the question becomes:
+        can the model always find enough of those right-angle directions to go
+        around?
       </p>
       <p>
-        Start in <strong>2D</strong> — a flat sheet. If meaning points east, the
-        only direction that doesn't overlap it at all is due north. Pick a
-        direction at random and it almost always lands somewhere diagonal,{' '}
-        <em>partly on top of</em> meaning. Two random arrows here can sit at
-        practically any angle: the chart is flat, and the spread is a huge{' '}
-        <strong>±52°</strong> (that's 180/√12 — the spread of a perfectly even
-        range of angles from 0° to 180°).
+        On a flat map you get only <strong>two</strong>: East and North. Want to
+        store a third thing — say, altitude — and there's no room left; it has to
+        lie partly on top of the others. But a language model doesn't live on a
+        flat map. It lives in <strong>hundreds or thousands of dimensions</strong>,
+        and every extra dimension is a fresh right-angle direction to stash
+        something in. Plenty of room.
+      </p>
+      <p>
+        And here's the part that feels like magic: in high dimensions you don't
+        even have to <em>arrange</em> the directions carefully. Throw two arrows
+        down completely at random and they come out almost perfectly
+        perpendicular. Why? It comes down to coin flips.
+      </p>
+
+      <Analogy label="Picture this — coin flips">
+        <p>
+          To measure how much two arrows overlap, walk through them one dimension
+          at a time. In each dimension, either they <em>agree</em> (both lean the
+          same way, nudging the overlap up) or they <em>disagree</em> (nudging it
+          down). For random arrows that's a coin flip: heads +, tails −.
+        </p>
+        <p>
+          In <strong>2 dimensions</strong> you flip just 2 coins. Two heads in a
+          row is easy — so the arrows often <em>do</em> overlap a lot. Unreliable.
+        </p>
+        <p>
+          In <strong>1000 dimensions</strong> you flip 1000 coins and add them up.
+          Roughly half land heads, half tails, and they cancel out — the total
+          lands near <strong>zero</strong>. Near-zero overlap means the arrows are
+          perpendicular. The more dimensions, the more thorough the cancellation.
+        </p>
+      </Analogy>
+
+      <p>
+        Drag the dimensionality up and watch it happen. At <strong>2D</strong> the
+        chart is flat — any angle is fair game, with a huge spread of{' '}
+        <strong>±52°</strong>. Crank it higher and the whole pile of angles{' '}
+        <strong className="text-combined-soft">collapses onto 90°</strong>; by a
+        few hundred dimensions nearly every random pair is a right angle, give or
+        take a couple of degrees.
       </p>
       <Slider
         label="dimensionality"
@@ -156,31 +189,23 @@ export function HighDimSection() {
         format={() => `${dim}D`}
         onChange={setDimIndex}
       />
+
       <p>
-        Now drag the slider up, and here's the surprise: as you add dimensions,
-        two directions picked at random become almost exactly perpendicular{' '}
-        <em>on their own</em>. The histogram collapses to a spike at 90° and the
-        ± shrinks toward zero. By a few hundred dimensions, nearly every pair is
-        within a couple of degrees of a right angle.
-      </p>
-      <p>
+        That's the whole answer to "why doesn't adding destroy position?"
         Perpendicular means <strong className="text-combined-soft">non-interfering</strong>:
-        reading off "meaning" picks up essentially nothing of "position", and the
-        reverse. High dimensions hand out a near-endless supply of these
-        non-interfering directions — so the model can give meaning its own,
-        position its own, and thousands of other features each their own, then
-        stack them all by addition without them bleeding together.
+        reading off meaning picks up basically none of position, and vice versa.
+        High dimensions hand out a near-endless supply of non-interfering
+        directions, so meaning gets its own, position gets its own, and the sum of
+        the two can still be split cleanly.
       </p>
 
       <p>
-        One thing to be precise about: what matters is that the directions are{' '}
-        <strong>perpendicular</strong>, <em>not</em> that they sit on "separate
-        coordinates." Lining meaning up with axis 1 and position with axis 2 is
-        just the easiest perpendicular arrangement to picture — but{' '}
+        (One bit of precision: what matters is the <strong>right angle</strong>,
+        not lining things up with the coordinate grid. The arrows{' '}
         <span className="font-mono">(1, 1)</span> and{' '}
-        <span className="font-mono">(1, −1)</span> are perpendicular too, and
-        neither is a single axis. The network usually uses tilted directions like
-        that. The right angle is the whole point; the coordinate grid is not.
+        <span className="font-mono">(1, −1)</span> are perpendicular without
+        either being an axis — and tilted pairs like that are exactly what the
+        network tends to use.)
       </p>
 
       <Detail summary="Proof: why the angle locks onto 90° as dimensions grow">

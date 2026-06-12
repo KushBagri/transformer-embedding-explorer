@@ -7,7 +7,7 @@ import { SectionShell } from './SectionShell'
 import { Card } from '../ui/Card'
 import { Callout } from '../ui/Callout'
 import { Slider } from '../ui/Slider'
-import { Detail } from '../ui/Detail'
+import { Analogy } from '../ui/Analogy'
 import { MathInline } from '../ui/MathInline'
 import { VectorArrows2D } from '../viz/primitives/VectorArrows2D'
 import { ROLE_COLOR } from '../viz/primitives/ColorScale'
@@ -44,41 +44,58 @@ export function AdditionSection() {
       )}
     >
       <p>
-        Here is the worry, and it's a good one. Two vectors add tip-to-tail into
-        a third. If all the model ever receives is the{' '}
-        <span className="text-combined-soft">combined</span> vector, how could it
-        ever tell which part was <span className="text-token-soft">meaning</span>{' '}
-        and which was <span className="text-position-soft">position</span>?
-      </p>
-      <p>
-        Drag the sliders. Many different token/position pairs land on the{' '}
-        <em>same</em> combined arrow — so in general, you genuinely{' '}
-        <strong>cannot</strong> undo the addition. Your intuition is right.
+        We just said the model takes a word's{' '}
+        <span className="text-token-soft">meaning</span> and{' '}
+        <span className="text-position-soft">position</span> and adds them into
+        one <span className="text-combined-soft">combined</span> vector. Here's
+        the worry, and it's a good one: if you only ever see the sum, how could
+        you possibly tell which part was meaning and which was position? Doesn't
+        adding just scramble them together, like mixing two colors of paint?
       </p>
 
-      <Detail summary="So how is it ever recoverable? (the key idea)">
+      <Analogy label="Picture this — a treasure map">
         <p>
-          It's recoverable only if the two parts are constrained to point in{' '}
-          <strong>different directions</strong>. Suppose I tell you a sum is{' '}
-          <MathInline>C = (5, 3)</MathInline> and nothing else — you can't split
-          it; <MathInline>(4,1) + (1,2)</MathInline> works just as well as{' '}
-          <MathInline>(5,0) + (0,3)</MathInline>.
+          I give you directions to buried treasure: "walk{' '}
+          <span className="text-token-soft">3 steps East</span>, then{' '}
+          <span className="text-position-soft">4 steps North</span>." You end up
+          standing on one spot.
         </p>
         <p>
-          But if I also tell you "<span className="text-token-soft">meaning</span>{' '}
-          only lives along the x-axis, <span className="text-position-soft">position</span>{' '}
-          only along the y-axis," the split is forced:{' '}
-          <MathInline>(5,0)</MathInline> and <MathInline>(0,3)</MathInline>. The
-          constraint that each signal lives in its own subspace is exactly what
-          makes the sum reversible.
+          Now — just from where you're standing — can you work out how far East
+          and how far North you walked? <strong>Yes.</strong> How far <em>right</em>{' '}
+          you are is the East walk; how far <em>up</em> you are is the North walk.
+          The single end-spot still holds both numbers, perfectly.
         </p>
-        <p>
-          That's the whole resolution of the paradox — and it's why you'll soon
-          hear about <em>separate dimensions for meaning and position</em>. The
-          next two sections show why high-dimensional space has room for such
-          independent directions, and how the network ends up using them.
-        </p>
-      </Detail>
+      </Analogy>
+
+      <p>
+        That's all adding two vectors is. The{' '}
+        <span className="text-combined-soft">combined</span> arrow is your final
+        spot; the <span className="text-token-soft">token</span> and{' '}
+        <span className="text-position-soft">position</span> arrows are the two
+        walks that got you there. Both walks survive in the destination.
+      </p>
+      <p>
+        Why does it work? Because <strong>East and North don't interfere</strong>.
+        Walking East never changes how far North you are. So reading off one walk
+        ignores the other completely.
+      </p>
+      <p>
+        When would it <em>fail</em>? If I'd said "walk{' '}
+        <span className="text-token-soft">3 steps Northeast</span>, then{' '}
+        <span className="text-position-soft">4 steps Northeast</span>" — both
+        along the <em>same</em> direction. Now your end-spot only tells you the
+        total, 7 steps. Was it 3 + 4? 5 + 2? No way to know. Same direction =
+        blurred together. <strong>That</strong> is the paint-mixing case.
+      </p>
+      <p>
+        So the rule is simple: two added arrows stay separable as long as they
+        point in <strong>different directions</strong> — best of all, at right
+        angles, like East and North. Drag the sliders below: swing the token and
+        position arrows to point nearly the same way and they blur; pull them
+        apart toward perpendicular and each is cleanly readable from the violet
+        sum.
+      </p>
 
       <div className="grid grid-cols-2 gap-4">
         <div className="flex flex-col gap-2">

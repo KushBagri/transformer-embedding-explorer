@@ -11,6 +11,7 @@ import { Callout } from '../ui/Callout'
 import { Slider } from '../ui/Slider'
 import { Formula } from '../ui/Formula'
 import { Detail } from '../ui/Detail'
+import { Analogy } from '../ui/Analogy'
 import { Heatmap } from '../viz/primitives/Heatmap'
 import { LinePlot, type Series } from '../viz/primitives/LinePlot'
 import { sinusoidalPE, frequencyOfDim } from '../math/positional'
@@ -65,27 +66,59 @@ export function SinusoidalSection() {
       )}
     >
       <p>
-        Here's the job: hand every position — 1st word, 2nd word, 3rd word — its
-        own little ID vector. Two requirements. Every position must get a{' '}
-        <strong>different</strong> ID (so they don't get confused), and{' '}
-        <strong>nearby positions should get similar IDs</strong> (so the model
-        can feel that word 5 and word 6 are close).
+        Here's the job: give every position — 1st word, 2nd word, 3rd word — its
+        own little ID badge. Two rules. Each position needs a{' '}
+        <strong>different</strong> badge (so they're never confused), and{' '}
+        <strong>nearby positions should have similar badges</strong> (so the
+        model can feel that word 5 and word 6 are close, and word 5 and word 30
+        are far).
       </p>
       <p>
-        The lazy idea — just use the number 0, 1, 2, 3, … — fails: it grows
-        without limit and would tower over the small numbers in the word
-        embeddings, drowning out meaning. We want something bounded that still
-        counts.
+        The lazy idea — just label them 0, 1, 2, 3, … — breaks down: the numbers
+        grow forever and would tower over the small values in the word
+        embeddings, drowning out meaning. We need something that stays small but
+        still counts. So borrow a trick from a device you read every day.
       </p>
 
+      <Analogy label="Picture this — a clock">
+        <p>
+          A clock tells time with hands at <strong>different speeds</strong>: the
+          second hand races around, the minute hand crawls, the hour hand barely
+          moves.
+        </p>
+        <p>
+          No single hand tells you the time — but the{' '}
+          <strong>combination</strong> of all three pins down a unique moment
+          (within 12 hours). And a few seconds later? Every hand has barely moved,
+          so nearby moments look almost the same. Unique, yet smooth — exactly the
+          two rules we wanted.
+        </p>
+      </Analogy>
+
       <p>
-        Borrow a trick from <strong>binary counting</strong>. Count up
-        0, 1, 2, 3 and write each as bits:{' '}
-        <span className="font-mono">000, 001, 010, 011…</span> Look at the
-        columns. The <strong>rightmost</strong> bit flips every single step
-        (0,1,0,1,…); the <strong>middle</strong> bit flips half as often
-        (0,0,1,1,…); the <strong>leftmost</strong> half as often again. Each
-        column is a counter running at its own speed.
+        Positional encoding is a clock with <strong>many hands</strong>. Each
+        dimension is one hand, going around at its own speed. The fast hands tell
+        neighbouring positions apart; the slow hands tell far-apart positions
+        apart. Read where all the hands point at slot 5 and you've got slot 5's
+        badge — different from every other slot, yet close to slot 4's and 6's.
+      </p>
+      <p>
+        And the link to waves: as a hand sweeps around a circle, its height rises
+        and falls — and that smooth up-and-down <em>is</em> a sine wave. A fast
+        hand makes a fast wave, a slow hand a slow one. So "a clock with many
+        hands" and "a stack of sine waves" are the same thing. That's why the
+        formula is built from sines and cosines:
+      </p>
+      <Formula label="pos = position · i = dimension pair · d = model size">
+        PE<sub>(pos, 2i)</sub> = sin(pos / 10000<sup>2i/d</sup>)
+        <br />
+        PE<sub>(pos, 2i+1)</sub> = cos(pos / 10000<sup>2i/d</sup>)
+      </Formula>
+
+      <p>
+        If the clock still feels fuzzy, here's the exact same trick in plain
+        counting. Write the numbers 0–7 in binary. Each column flips at its own
+        rate — the rightmost every step, the next every two, the next every four:
       </p>
       <div className="rounded-xl border border-edge bg-surface-2 p-3">
         <Heatmap
@@ -103,29 +136,11 @@ export function SinusoidalSection() {
         </p>
       </div>
       <p>
-        Here's the punchline: <strong>no single column</strong> tells you the
-        number — but the <strong>combination</strong> of columns does, uniquely.
-        A handful of wheels spinning at different speeds can count very high
-        without any one wheel needing many positions. That's the idea sinusoidal
-        encoding steals.
-      </p>
-
-      <p>
-        Sinusoidal positional encoding is exactly this, made <strong>smooth</strong>.
-        Swap the hard 0/1 bits for gentle sine waves, one per dimension, each at
-        its own frequency:
-      </p>
-      <Formula label="pos = position · i = dimension pair · d = model size">
-        PE<sub>(pos, 2i)</sub> = sin(pos / 10000<sup>2i/d</sup>)
-        <br />
-        PE<sub>(pos, 2i+1)</sub> = cos(pos / 10000<sup>2i/d</sup>)
-      </Formula>
-      <p>
-        The first dimensions are fast waves (they tell neighbors apart); later
-        dimensions are slow waves (they tell far-apart regions apart). Compare the
-        two heatmaps on the right and left — the smooth one is just the binary
-        counter with the staircase sanded off. Because the waves are smooth,
-        neighbors get <em>similar</em> codes instead of an abrupt flip.
+        Same idea as the clock hands: columns ticking at different speeds, and the{' '}
+        <strong>combination</strong> is unique. Sinusoidal encoding is just this
+        with the hard 0/1 steps smoothed into waves — compare it to the big
+        heatmap on the right, which is this staircase sanded smooth. The fast
+        waves sit on the left, the slow waves on the right.
       </p>
 
       <Slider label="sequence length" min={4} max={32} step={1} value={seqLen} onChange={setSeqLen} />
