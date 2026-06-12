@@ -32,15 +32,27 @@ function computeAngles(dim: number) {
   const rng = mulberry32(20240611)
   const counts = new Array(BINS).fill(0)
   let angleSum = 0
+  let angleSqSum = 0
   let absCosSum = 0
+  let near = 0 // within 10 degrees of perpendicular
   for (let s = 0; s < SAMPLES; s++) {
     const c = cosine(randomUnit(dim, rng), randomUnit(dim, rng))
     const deg = (Math.acos(Math.min(1, Math.max(-1, c))) * 180) / Math.PI
     counts[Math.min(BINS - 1, Math.floor((deg / 180) * BINS))]++
     angleSum += deg
+    angleSqSum += deg * deg
     absCosSum += Math.abs(c)
+    if (Math.abs(deg - 90) <= 10) near++
   }
-  return { counts, meanAngle: angleSum / SAMPLES, meanAbsCos: absCosSum / SAMPLES }
+  const meanAngle = angleSum / SAMPLES
+  const variance = Math.max(0, angleSqSum / SAMPLES - meanAngle * meanAngle)
+  return {
+    counts,
+    meanAngle,
+    spread: Math.sqrt(variance),
+    pctNearPerp: (100 * near) / SAMPLES,
+    meanAbsCos: absCosSum / SAMPLES,
+  }
 }
 
 function Histogram({ counts }: { counts: number[] }) {
@@ -85,7 +97,10 @@ function Histogram({ counts }: { counts: number[] }) {
 export function HighDimSection() {
   const [dimIndex, setDimIndex] = useState(0)
   const dim = DIMS[dimIndex]
-  const { counts, meanAngle, meanAbsCos } = useMemo(() => computeAngles(dim), [dim])
+  const { counts, spread, pctNearPerp, meanAbsCos } = useMemo(
+    () => computeAngles(dim),
+    [dim],
+  )
 
   return (
     <SectionShell
@@ -96,8 +111,10 @@ export function HighDimSection() {
         <Card>
           <div className="mb-3 flex items-end justify-between">
             <div>
-              <p className="text-xs uppercase tracking-widest text-prose-dim">mean angle</p>
-              <p className="font-mono text-3xl text-combined-soft">{meanAngle.toFixed(1)}°</p>
+              <p className="text-xs uppercase tracking-widest text-prose-dim">typical angle</p>
+              <p className="font-mono text-3xl text-combined-soft">
+                90° <span className="text-prose-dim">±</span> {spread.toFixed(0)}°
+              </p>
             </div>
             <div className="text-right">
               <p className="text-xs uppercase tracking-widest text-prose-dim">dimensions</p>
@@ -106,15 +123,22 @@ export function HighDimSection() {
           </div>
           <Histogram counts={counts} />
           <p className="mt-2 text-center text-sm text-prose-dim">
-            mean |cosine| = {meanAbsCos.toFixed(3)}
+            {pctNearPerp.toFixed(0)}% of pairs within 10° of perpendicular ·
+            typical overlap |cos| = {meanAbsCos.toFixed(3)}
           </p>
         </Card>
       )}
     >
       <p>
-        Pick two arrows at random. In <strong>2 dimensions</strong> they often
-        point in similar directions — the angle between them is all over the
-        place. Now raise the dimensionality.
+        You might object: even in <strong>2D</strong>, two random arrows are{' '}
+        <em>on average</em> 90° apart, so what's special? You'd be right — the{' '}
+        <em>average</em> is 90° in every dimension. The average is not the point.
+      </p>
+      <p>
+        What matters is the <strong className="text-combined-soft">spread</strong>.
+        In 2D the angle is equally likely to be anything from 0° to 180°: loads of
+        pairs come out nearly parallel (lots of overlap) or nearly opposite. The
+        histogram is flat. Now raise the dimensionality and watch the ± shrink.
       </p>
       <Slider
         label="dimensionality"
@@ -126,15 +150,16 @@ export function HighDimSection() {
         onChange={setDimIndex}
       />
       <p>
-        As dimensions grow, the angle distribution{' '}
-        <strong className="text-combined-soft">collapses onto a spike at 90°</strong>.
-        Random vectors become almost perfectly orthogonal — and orthogonal
-        signals don't interfere when you add them.
+        As dimensions grow, the distribution{' '}
+        <strong className="text-combined-soft">clamps down around 90°</strong>.
+        It's not that the average moves — it's that 90° becomes almost the{' '}
+        <em>only</em> outcome. By a few hundred dimensions, nearly every pair of
+        random directions is perpendicular to within a few degrees.
       </p>
       <Callout accent="combined">
-        There's so much room in high-dimensional space that a word's meaning and
-        its position land in nearly independent directions. Adding them barely
-        disturbs either one.
+        That's the "room": meaning can claim a direction and be almost certain
+        nothing else is sitting on top of it. So position can take its own
+        direction too — and adding the two barely disturbs either one.
       </Callout>
     </SectionShell>
   )

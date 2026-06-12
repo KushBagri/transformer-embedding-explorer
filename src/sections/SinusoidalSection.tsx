@@ -8,6 +8,8 @@ import { SectionShell } from './SectionShell'
 import { Card } from '../ui/Card'
 import { Callout } from '../ui/Callout'
 import { Slider } from '../ui/Slider'
+import { Formula } from '../ui/Formula'
+import { Detail } from '../ui/Detail'
 import { Heatmap } from '../viz/primitives/Heatmap'
 import { LinePlot, type Series } from '../viz/primitives/LinePlot'
 import { sinusoidalPE, frequencyOfDim } from '../math/positional'
@@ -53,9 +55,22 @@ export function SinusoidalSection() {
       )}
     >
       <p>
-        The original transformer doesn't learn the position vectors — it builds
-        them from sines and cosines. Each dimension oscillates at its own
-        frequency, so every position gets a unique fingerprint.
+        The original transformer doesn't <em>learn</em> the position vectors — it
+        builds them from sines and cosines, one frequency per dimension pair:
+      </p>
+
+      <Formula label="pos = position in the sentence · i = dimension pair · d = model size">
+        PE<sub>(pos, 2i)</sub> = sin(pos / 10000<sup>2i/d</sup>)
+        <br />
+        PE<sub>(pos, 2i+1)</sub> = cos(pos / 10000<sup>2i/d</sup>)
+      </Formula>
+
+      <p>
+        Think of an <strong>odometer</strong>, or a row of clock hands. The first
+        dimensions spin fast (they tick over every couple of positions); later
+        dimensions spin slower and slower. Read all the hands together and the
+        exact combination is unique to one position — just like 0–9 digits on
+        different wheels combine to name one number on an odometer.
       </p>
 
       <Slider label="sequence length" min={4} max={32} step={1} value={seqLen} onChange={setSeqLen} />
@@ -71,10 +86,25 @@ export function SinusoidalSection() {
         {dModel > 8 ? ', …' : ''}]
       </p>
 
+      <Detail summary="Why both sine and cosine — and why it loves relative position">
+        <p>
+          Pairing sine with cosine at each frequency turns "shift by k positions"
+          into a fixed <em>rotation</em> of the encoding. So{' '}
+          <span className="font-mono">PE(pos + k)</span> is a linear function of{' '}
+          <span className="font-mono">PE(pos)</span> — the same rotation for every
+          pos.
+        </p>
+        <p>
+          That's the payoff: attention compares positions with dot products, and
+          this construction makes "3 tokens apart" look the same everywhere in the
+          sentence. The model can learn <em>relative</em> offsets, and it
+          generalizes to sentence lengths it never saw in training.
+        </p>
+      </Detail>
+
       <Callout accent="position">
-        Low dimensions barely move between neighbors; high dimensions spin fast.
-        Together they encode position in a way a linear layer can read straight
-        out of the sum.
+        Slow wheels for coarse position, fast wheels for fine — a smooth, bounded
+        code that a single linear layer can read straight back out of the sum.
       </Callout>
     </SectionShell>
   )

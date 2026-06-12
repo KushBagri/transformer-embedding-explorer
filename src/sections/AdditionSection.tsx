@@ -7,6 +7,7 @@ import { SectionShell } from './SectionShell'
 import { Card } from '../ui/Card'
 import { Callout } from '../ui/Callout'
 import { Slider } from '../ui/Slider'
+import { Detail } from '../ui/Detail'
 import { MathInline } from '../ui/MathInline'
 import { VectorArrows2D } from '../viz/primitives/VectorArrows2D'
 import { ROLE_COLOR } from '../viz/primitives/ColorScale'
@@ -18,13 +19,12 @@ export function AdditionSection() {
   const [token, setToken] = useState<[number, number]>([2, 1])
   const [position, setPosition] = useState<[number, number]>([-1, 2])
   const combined: [number, number] = [token[0] + position[0], token[1] + position[1]]
-  const recoveredToken: [number, number] = [combined[0] - position[0], combined[1] - position[1]]
 
   return (
     <SectionShell
       id="addition"
-      eyebrow="The addition"
-      title="Adding is stacking, not blending"
+      eyebrow="The worry"
+      title="Doesn't adding destroy the parts?"
       visual={() => (
         <Card>
           <div className="mb-3 flex flex-wrap gap-x-4 gap-y-1 text-sm">
@@ -44,12 +44,41 @@ export function AdditionSection() {
       )}
     >
       <p>
-        Two vectors add tip-to-tail into a third. The dashed parallelogram shows
-        the <span className="text-combined-soft">combined</span> vector is built
-        from <em>both</em> the <span className="text-token-soft">token</span> and
-        the <span className="text-position-soft">position</span> — it still
-        points partly toward each.
+        Here is the worry, and it's a good one. Two vectors add tip-to-tail into
+        a third. If all the model ever receives is the{' '}
+        <span className="text-combined-soft">combined</span> vector, how could it
+        ever tell which part was <span className="text-token-soft">meaning</span>{' '}
+        and which was <span className="text-position-soft">position</span>?
       </p>
+      <p>
+        Drag the sliders. Many different token/position pairs land on the{' '}
+        <em>same</em> combined arrow — so in general, you genuinely{' '}
+        <strong>cannot</strong> undo the addition. Your intuition is right.
+      </p>
+
+      <Detail summary="So how is it ever recoverable? (the key idea)">
+        <p>
+          It's recoverable only if the two parts are constrained to point in{' '}
+          <strong>different directions</strong>. Suppose I tell you a sum is{' '}
+          <MathInline>C = (5, 3)</MathInline> and nothing else — you can't split
+          it; <MathInline>(4,1) + (1,2)</MathInline> works just as well as{' '}
+          <MathInline>(5,0) + (0,3)</MathInline>.
+        </p>
+        <p>
+          But if I also tell you "<span className="text-token-soft">meaning</span>{' '}
+          only lives along the x-axis, <span className="text-position-soft">position</span>{' '}
+          only along the y-axis," the split is forced:{' '}
+          <MathInline>(5,0)</MathInline> and <MathInline>(0,3)</MathInline>. The
+          constraint that each signal lives in its own subspace is exactly what
+          makes the sum reversible.
+        </p>
+        <p>
+          That's the whole resolution of the paradox — and it's why you'll soon
+          hear about <em>separate dimensions for meaning and position</em>. The
+          next two sections show why high-dimensional space has room for such
+          independent directions, and how the network ends up using them.
+        </p>
+      </Detail>
 
       <div className="grid grid-cols-2 gap-4">
         <div className="flex flex-col gap-2">
@@ -65,17 +94,17 @@ export function AdditionSection() {
       </div>
 
       <p>
-        Nothing was averaged away. Subtract the position back out and the token
-        returns exactly:{' '}
-        <MathInline>
-          {fmtVec(combined)} − {fmtVec(position)} = {fmtVec(recoveredToken)}
-        </MathInline>
-        .
+        Note what addition does <em>not</em> do: it doesn't average or round
+        anything off. Every number is still present in the sum —{' '}
+        <MathInline>{fmtVec(combined)}</MathInline> — it's just entangled. The
+        question is never "is the information still there?" (it is) but "is it{' '}
+        <em>laid out</em> so it can be pulled back apart?"
       </p>
 
       <Callout accent="combined">
-        Addition is superposition, not compression — the parts are still in there,
-        waiting to be read back out.
+        Adding keeps both contributions in the sum. Separating them again needs
+        one more ingredient — meaning and position must point in different
+        directions. That's where dimensions come in.
       </Callout>
     </SectionShell>
   )

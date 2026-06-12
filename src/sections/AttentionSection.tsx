@@ -8,6 +8,7 @@ import { Card } from '../ui/Card'
 import { Callout } from '../ui/Callout'
 import { Slider } from '../ui/Slider'
 import { Toggle } from '../ui/Toggle'
+import { Detail } from '../ui/Detail'
 import { Heatmap } from '../viz/primitives/Heatmap'
 import { useModel } from '../state/modelContext'
 import { PEKind } from '../math/types'
@@ -47,10 +48,34 @@ export function AttentionSection() {
       )}
     >
       <p>
-        Every token builds a <em>query</em> and a <em>key</em> by a linear
-        projection of its combined vector. Their dot products, softmaxed, decide
-        who attends to whom. Hover a row to trace one query.
+        Picture every token in a room. Each one holds up a{' '}
+        <strong>query</strong> — "here's what I'm looking for" — and a{' '}
+        <strong>key</strong> — "here's what I offer." Both are just linear
+        projections of that token's combined vector.
       </p>
+      <p>
+        To decide how much token <em>i</em> should listen to token <em>j</em>,
+        take the <strong>dot product</strong> of i's query with j's key: aligned
+        directions score high (relevant), unaligned score low. Softmax turns each
+        row of scores into an attention budget that sums to 1 — a row says "I
+        spend this fraction of my attention on each other token." The token then
+        pulls in a blend of everyone's <strong>value</strong> vectors, weighted by
+        that budget. Hover a row to trace one token's budget.
+      </p>
+
+      <Detail summary="Where does position come into this?">
+        <p>
+          Because position survived the addition, a token's query and key can
+          depend on <em>where</em> it is, not just <em>what</em> it is. That's
+          how a head can learn a rule like "attend to the token just before me" —
+          a purely positional pattern, visible as a stripe just off the diagonal.
+        </p>
+        <p>
+          Strip position out and queries/keys depend on content alone. Attention
+          becomes permutation-invariant: shuffle the words and the pattern follows
+          them, because the model has no idea where anything sits.
+        </p>
+      </Detail>
 
       <label className="block">
         <span className="mb-1 block text-sm text-prose">sentence</span>
