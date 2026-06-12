@@ -200,38 +200,147 @@ export function HighDimSection() {
       </p>
 
       <p>
-        (One bit of precision: what matters is the <strong>right angle</strong>,
-        not lining things up with the coordinate grid. The arrows{' '}
-        <span className="font-mono">(1, 1)</span> and{' '}
-        <span className="font-mono">(1, −1)</span> are perpendicular without
-        either being an axis — and tilted pairs like that are exactly what the
-        network tends to use.)
+        Now the clarification that trips up almost everyone — and it fixes
+        something you may have noticed me fudge earlier. Back at the treasure map
+        I said meaning goes along one axis (East) and position along another
+        (North), as if{' '}
+        <strong>dimensions 0–9 store position and 10–511 store meaning</strong>,
+        each in its own private columns. That is <strong>not</strong> what
+        happens. The coin-flip picture already gave it away: every vector has a
+        value in <em>every</em> dimension. The meaning vector uses all 512
+        coordinates; so does the position vector. Nobody gets their own columns.
+      </p>
+      <p>
+        So how can they be "separate" if they share all the coordinates? Because
+        separate means <strong>perpendicular directions</strong>, not separate
+        coordinates — and a direction is usually a <em>tilted blend</em> of all
+        the coordinates at once, not a single axis.
       </p>
 
-      <Detail summary="Proof: why the angle locks onto 90° as dimensions grow">
+      <Analogy label="Picture this — a tilted ruler">
         <p>
-          The cosine of the angle between two unit vectors is just their dot
-          product — add up the products of matching components:{' '}
-          <span className="font-mono">cos = a₁b₁ + a₂b₂ + … + a_d b_d</span>.
+          Back on the map, instead of East and North, use{' '}
+          <strong>Northeast</strong> and <strong>Northwest</strong>. Each of those
+          uses the East coordinate <em>and</em> the North coordinate — neither is a
+          pure axis. Yet they're still at a perfect right angle to each other.
         </p>
         <p>
-          For random vectors, each term <span className="font-mono">aᵢbᵢ</span> is
-          equally likely to be a little positive or a little negative. Adding{' '}
-          <span className="font-mono">d</span> of these is a random walk of{' '}
-          <span className="font-mono">d</span> coin-flip-sized steps: the steps
-          mostly cancel, and the leftover sum grows only like{' '}
-          <span className="font-mono">√d</span>. Meanwhile dividing by the vector
-          lengths normalizes by about <span className="font-mono">d</span>. So the
-          cosine shrinks like <span className="font-mono">√d / d = 1/√d</span> → 0.
+          So "walk 3 along Northeast, then 4 along Northwest" still works: you
+          recover each walk by measuring with a ruler turned 45°. Sharing the
+          underlying coordinates changes nothing. The <strong>right angle</strong>{' '}
+          is what lets you separate them.
+        </p>
+      </Analogy>
+
+      <p>
+        That's exactly the real setup. Meaning lives along one tilted direction
+        (spread across all the dimensions); position lives along another tilted
+        direction (also spread across all of them); and the two directions are
+        perpendicular. "Different dimensions" was a white lie to get us moving —
+        the honest version is <strong>different perpendicular directions, each
+        woven through every dimension</strong>.
+      </p>
+
+      <Detail summary="Then how does the model 'read one back out'? (the projection)">
+        <p>
+          To pull meaning out of the sum, the model <strong>projects</strong> the
+          combined vector onto meaning's direction — it takes the dot product with
+          meaning's unit arrow <span className="font-mono">û</span>.
         </p>
         <p>
-          Concretely the typical overlap is{' '}
-          <span className="font-mono">|cos| ≈ √(2/πd)</span>. Drag the slider to{' '}
-          512 and read the "typical overlap" number under the chart: it sits right
-          next to <span className="font-mono">√(2/π·512) ≈ 0.035</span> — the
-          simulation and the formula agree to within sampling noise. Cosine near 0
-          means angle near 90°, and the spread closes like{' '}
-          <span className="font-mono">1/√d</span>.
+          Write the sum as <span className="font-mono">combined = A + B</span>,
+          where <span className="font-mono">A</span> is the meaning part (pointing
+          along <span className="font-mono">û</span>) and{' '}
+          <span className="font-mono">B</span> is the position part (along a
+          perpendicular direction <span className="font-mono">v̂</span>). The
+          projection is{' '}
+          <span className="font-mono">(A + B) · û = A·û + B·û</span>. Because{' '}
+          <span className="font-mono">B</span> is perpendicular to{' '}
+          <span className="font-mono">û</span>, the term{' '}
+          <span className="font-mono">B·û = 0</span> — position contributes{' '}
+          <em>nothing</em>. Out comes meaning, with zero leakage.
+        </p>
+        <p>
+          That one dot product <em>is</em> the separation. And the{' '}
+          <span className="text-prose-bright">Q/K/V</span> projections coming up in
+          the attention section are precisely these learned "read-out directions."
+        </p>
+      </Detail>
+
+      <Detail summary="The full proof: why random vectors lock onto 90° (worth the read)">
+        <p>
+          We'll show two things: (1) two random directions are{' '}
+          <strong>on average</strong> perpendicular in <em>any</em> number of
+          dimensions, and (2) the wobble around perpendicular shrinks like{' '}
+          <span className="font-mono">1/√d</span>, so in high dimensions they're{' '}
+          <em>almost always</em> perpendicular. The whole thing rides on one
+          quantity.
+        </p>
+        <p>
+          <strong>The quantity.</strong> The angle between two unit-length vectors
+          is fixed by its cosine, and the cosine is just their dot product — march
+          through the coordinates, multiply each pair, and add:{' '}
+          <span className="font-mono">cos = a₁b₁ + a₂b₂ + … + a_d b_d</span>. Cosine
+          near 0 ⇒ angle near 90°. So we just need to know how big this sum tends
+          to be.
+        </p>
+        <p>
+          <strong>Step 1 — how big is one coordinate?</strong> A unit vector has
+          length 1, i.e. <span className="font-mono">a₁² + … + a_d² = 1</span>.
+          Split evenly across <span className="font-mono">d</span> coordinates,
+          each <span className="font-mono">aᵢ²</span> is about{' '}
+          <span className="font-mono">1/d</span>, so each coordinate{' '}
+          <span className="font-mono">aᵢ</span> is about{' '}
+          <span className="font-mono">±1/√d</span> in size. In 100 dimensions every
+          coordinate is tiny (~0.1); in 2 dimensions each is large (~0.7).
+        </p>
+        <p>
+          <strong>Step 2 — the average is exactly 0.</strong> Choose the directions
+          at random. In each coordinate, <span className="font-mono">aᵢ</span> and{' '}
+          <span className="font-mono">bᵢ</span> are independent and as likely{' '}
+          <span className="font-mono">+</span> as <span className="font-mono">−</span>,
+          so the product <span className="font-mono">aᵢbᵢ</span> is positive half
+          the time and negative half the time — average 0. Sum{' '}
+          <span className="font-mono">d</span> of them and the average is still 0.
+          So <span className="font-mono">cos</span> averages 0, i.e. 90°, for{' '}
+          <em>every</em> <span className="font-mono">d</span> — even 2D. (That's why
+          the mean angle never moved off 90°.)
+        </p>
+        <p>
+          <strong>Step 3 — but how far does it stray from 0?</strong> Average-0
+          doesn't mean each draw is 0; the sum jitters. Each term{' '}
+          <span className="font-mono">aᵢbᵢ</span> has size about{' '}
+          <span className="font-mono">(1/√d)(1/√d) = 1/d</span>. There are{' '}
+          <span className="font-mono">d</span> terms — but with random{' '}
+          <span className="font-mono">+/−</span> signs they don't pile up, they{' '}
+          partly cancel, like a coin-flip random walk. A walk of{' '}
+          <span className="font-mono">d</span> steps of size{' '}
+          <span className="font-mono">1/d</span> ends up a typical distance of{' '}
+          <span className="font-mono">√d × (1/d) = 1/√d</span> from zero.
+        </p>
+        <p>
+          <strong>Step 4 — put it together.</strong>{' '}
+          <span className="font-mono">cos ≈ 0 ± 1/√d</span>:
+        </p>
+        <ul className="ml-4 list-disc font-mono text-sm">
+          <li>d = 4 → ±0.50 — angles all over the place</li>
+          <li>d = 100 → ±0.10 — tightening up</li>
+          <li>d = 10,000 → ±0.01 — cosine ≈ 0, angle ≈ 90°</li>
+        </ul>
+        <p>
+          More dimensions ⇒ more coins ⇒ more complete cancellation ⇒ cosine
+          pinned tighter to 0. Worked out exactly, the typical size is{' '}
+          <span className="font-mono">|cos| ≈ √(2/πd)</span>. Set the slider to 512
+          and read "typical overlap": it sits right next to{' '}
+          <span className="font-mono">√(2/π·512) ≈ 0.035</span> — simulation meets
+          formula.
+        </p>
+        <p>
+          <strong>The one caveat:</strong> at <span className="font-mono">d = 2</span>{' '}
+          there are too few steps for the random walk to smooth anything, and the
+          angle is actually spread evenly across 0–180° (that ±52°). The{' '}
+          <span className="font-mono">1/√d</span> clamping is what takes over the
+          moment you add more dimensions.
         </p>
       </Detail>
 
