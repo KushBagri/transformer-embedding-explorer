@@ -11,6 +11,8 @@ import { Callout } from '../ui/Callout'
 import { Slider } from '../ui/Slider'
 import { Detail } from '../ui/Detail'
 import { Analogy } from '../ui/Analogy'
+import { SubHeading } from '../ui/SubHeading'
+import { MathInline } from '../ui/MathInline'
 import { mulberry32, gaussian } from '../math/rng'
 import { cosine } from '../math/vector'
 
@@ -138,19 +140,28 @@ export function HighDimSection() {
         can the model always find enough of those right-angle directions to go
         around?
       </p>
+      <SubHeading>Why a flat world runs out of room</SubHeading>
       <p>
-        On a flat map you get only <strong>two</strong>: East and North. Want to
-        store a third thing — say, altitude — and there's no room left; it has to
-        lie partly on top of the others. But a language model doesn't live on a
-        flat map. It lives in <strong>hundreds or thousands of dimensions</strong>,
-        and every extra dimension is a fresh right-angle direction to stash
-        something in. Plenty of room.
+        On a flat map you get only <strong>two</strong> perpendicular directions:
+        East and North. Want to store a third thing — say, altitude — and there's
+        no room left; it has to lie partly on top of the others, and now reading
+        one drags in the rest. With more things to encode than perpendicular
+        directions, interference is forced.
       </p>
       <p>
-        And here's the part that feels like magic: in high dimensions you don't
-        even have to <em>arrange</em> the directions carefully. Throw two arrows
-        down completely at random and they come out almost perfectly
-        perpendicular. Why? It comes down to coin flips.
+        But a language model doesn't live on a flat map. It lives in{' '}
+        <strong>hundreds or thousands of dimensions</strong>, and every extra
+        dimension is a fresh right-angle direction to stash something in. Room
+        stops being the problem.
+      </p>
+
+      <SubHeading>The surprise: random arrows are nearly perpendicular</SubHeading>
+      <p>
+        Better still, in high dimensions you don't even have to{' '}
+        <em>arrange</em> the directions carefully. Throw two arrows down
+        completely at random and they come out almost perfectly perpendicular —
+        for free. That sounds wrong, so here's why it's true. It comes down to
+        coin flips.
       </p>
 
       <Analogy label="Picture this — coin flips">
@@ -172,6 +183,7 @@ export function HighDimSection() {
         </p>
       </Analogy>
 
+      <SubHeading>Watch the spread collapse</SubHeading>
       <p>
         Drag the dimensionality up and watch it happen. At <strong>2D</strong> the
         chart is flat — any angle is fair game, with a huge spread of{' '}
@@ -190,15 +202,77 @@ export function HighDimSection() {
         onChange={setDimIndex}
       />
 
+      <SubHeading>The mechanism, step by step</SubHeading>
       <p>
-        That's the whole answer to "why doesn't adding destroy position?"
+        Why do the angles pile onto 90°? It all rides on one number: the cosine of
+        the angle between two unit-length arrows, which is exactly their dot
+        product — march through the coordinates, multiply each pair, and add them
+        up: <MathInline>cos = a₁b₁ + a₂b₂ + … + a_d b_d</MathInline>. Cosine near 0
+        means angle near 90°, so we only need to know how big that sum tends to be.
+        Four steps:
+      </p>
+      <ol className="flex list-decimal flex-col gap-2 pl-5 marker:text-prose-dim">
+        <li>
+          <strong className="text-prose-bright">One coordinate is about ±1/√d.</strong>{' '}
+          A unit arrow has length 1, so{' '}
+          <MathInline>a₁² + … + a_d² = 1</MathInline>. Spread evenly over{' '}
+          <MathInline>d</MathInline> coordinates, each is around{' '}
+          <MathInline>±1/√d</MathInline> — tiny in 100 dimensions (~0.1), large in
+          2 (~0.7).
+        </li>
+        <li>
+          <strong className="text-prose-bright">On average the sum is exactly 0.</strong>{' '}
+          Each product <MathInline>aᵢbᵢ</MathInline> is positive half the time and
+          negative half the time, so it averages 0; add{' '}
+          <MathInline>d</MathInline> of them and the average is still 0. The cosine
+          averages 0 — a right angle — in <em>every</em> dimension, even 2D. (That
+          is why the average alone told you nothing.)
+        </li>
+        <li>
+          <strong className="text-prose-bright">But it jitters by about 1/√d.</strong>{' '}
+          Each term is roughly <MathInline>1/d</MathInline> in size; with{' '}
+          <MathInline>d</MathInline> random ± signs they mostly cancel — a
+          coin-flip walk of <MathInline>d</MathInline> steps of size{' '}
+          <MathInline>1/d</MathInline> lands a typical distance of{' '}
+          <MathInline>√d × (1/d) = 1/√d</MathInline> from zero.
+        </li>
+        <li>
+          <strong className="text-prose-bright">So cos ≈ 0 ± 1/√d.</strong>{' '}
+          <MathInline>d = 4 → ±0.50</MathInline> (angles all over the place);{' '}
+          <MathInline>d = 100 → ±0.10</MathInline>;{' '}
+          <MathInline>d = 10,000 → ±0.01</MathInline> (basically a right angle).
+        </li>
+      </ol>
+      <p>
+        More dimensions, more coins, more complete cancellation — the cosine
+        clamps tighter to 0 and the angle to 90°.
+      </p>
+
+      <SubHeading>A worked number</SubHeading>
+      <p>
+        Worked out exactly, the typical overlap is{' '}
+        <MathInline>|cos| ≈ √(2/πd)</MathInline>. At{' '}
+        <MathInline>d = 512</MathInline> that's{' '}
+        <MathInline>√(2/π·512) ≈ 0.035</MathInline> — set the slider to 512 and
+        read "typical overlap" under the chart; it sits right there. A cosine of
+        0.035 is an angle of about 88°: nearly perpendicular. Meanwhile{' '}
+        <MathInline>d = 2</MathInline> has too few coin flips for the cancellation
+        to bite, so the angle is spread evenly across 0–180° (the ±52° you see) —
+        the <MathInline>1/√d</MathInline> clamping only kicks in as dimensions
+        grow.
+      </p>
+
+      <SubHeading>Why this is the whole answer</SubHeading>
+      <p>
         Perpendicular means <strong className="text-combined-soft">non-interfering</strong>:
         reading off meaning picks up basically none of position, and vice versa.
         High dimensions hand out a near-endless supply of non-interfering
         directions, so meaning gets its own, position gets its own, and the sum of
-        the two can still be split cleanly.
+        the two can still be split cleanly. That is the resolution of the whole
+        paradox.
       </p>
 
+      <SubHeading>"Different directions," not "different dimensions"</SubHeading>
       <p>
         Now the clarification that trips up almost everyone — and it fixes
         something you may have noticed me fudge earlier. Back at the treasure map
@@ -264,83 +338,6 @@ export function HighDimSection() {
           That one dot product <em>is</em> the separation. And the{' '}
           <span className="text-prose-bright">Q/K/V</span> projections coming up in
           the attention section are precisely these learned "read-out directions."
-        </p>
-      </Detail>
-
-      <Detail summary="The full proof: why random vectors lock onto 90° (worth the read)">
-        <p>
-          We'll show two things: (1) two random directions are{' '}
-          <strong>on average</strong> perpendicular in <em>any</em> number of
-          dimensions, and (2) the wobble around perpendicular shrinks like{' '}
-          <span className="font-mono">1/√d</span>, so in high dimensions they're{' '}
-          <em>almost always</em> perpendicular. The whole thing rides on one
-          quantity.
-        </p>
-        <p>
-          <strong>The quantity.</strong> The angle between two unit-length vectors
-          is fixed by its cosine, and the cosine is just their dot product — march
-          through the coordinates, multiply each pair, and add:{' '}
-          <span className="font-mono">cos = a₁b₁ + a₂b₂ + … + a_d b_d</span>. Cosine
-          near 0 ⇒ angle near 90°. So we just need to know how big this sum tends
-          to be.
-        </p>
-        <p>
-          <strong>Step 1 — how big is one coordinate?</strong> A unit vector has
-          length 1, i.e. <span className="font-mono">a₁² + … + a_d² = 1</span>.
-          Split evenly across <span className="font-mono">d</span> coordinates,
-          each <span className="font-mono">aᵢ²</span> is about{' '}
-          <span className="font-mono">1/d</span>, so each coordinate{' '}
-          <span className="font-mono">aᵢ</span> is about{' '}
-          <span className="font-mono">±1/√d</span> in size. In 100 dimensions every
-          coordinate is tiny (~0.1); in 2 dimensions each is large (~0.7).
-        </p>
-        <p>
-          <strong>Step 2 — the average is exactly 0.</strong> Choose the directions
-          at random. In each coordinate, <span className="font-mono">aᵢ</span> and{' '}
-          <span className="font-mono">bᵢ</span> are independent and as likely{' '}
-          <span className="font-mono">+</span> as <span className="font-mono">−</span>,
-          so the product <span className="font-mono">aᵢbᵢ</span> is positive half
-          the time and negative half the time — average 0. Sum{' '}
-          <span className="font-mono">d</span> of them and the average is still 0.
-          So <span className="font-mono">cos</span> averages 0, i.e. 90°, for{' '}
-          <em>every</em> <span className="font-mono">d</span> — even 2D. (That's why
-          the mean angle never moved off 90°.)
-        </p>
-        <p>
-          <strong>Step 3 — but how far does it stray from 0?</strong> Average-0
-          doesn't mean each draw is 0; the sum jitters. Each term{' '}
-          <span className="font-mono">aᵢbᵢ</span> has size about{' '}
-          <span className="font-mono">(1/√d)(1/√d) = 1/d</span>. There are{' '}
-          <span className="font-mono">d</span> terms — but with random{' '}
-          <span className="font-mono">+/−</span> signs they don't pile up, they{' '}
-          partly cancel, like a coin-flip random walk. A walk of{' '}
-          <span className="font-mono">d</span> steps of size{' '}
-          <span className="font-mono">1/d</span> ends up a typical distance of{' '}
-          <span className="font-mono">√d × (1/d) = 1/√d</span> from zero.
-        </p>
-        <p>
-          <strong>Step 4 — put it together.</strong>{' '}
-          <span className="font-mono">cos ≈ 0 ± 1/√d</span>:
-        </p>
-        <ul className="ml-4 list-disc font-mono text-sm">
-          <li>d = 4 → ±0.50 — angles all over the place</li>
-          <li>d = 100 → ±0.10 — tightening up</li>
-          <li>d = 10,000 → ±0.01 — cosine ≈ 0, angle ≈ 90°</li>
-        </ul>
-        <p>
-          More dimensions ⇒ more coins ⇒ more complete cancellation ⇒ cosine
-          pinned tighter to 0. Worked out exactly, the typical size is{' '}
-          <span className="font-mono">|cos| ≈ √(2/πd)</span>. Set the slider to 512
-          and read "typical overlap": it sits right next to{' '}
-          <span className="font-mono">√(2/π·512) ≈ 0.035</span> — simulation meets
-          formula.
-        </p>
-        <p>
-          <strong>The one caveat:</strong> at <span className="font-mono">d = 2</span>{' '}
-          there are too few steps for the random walk to smooth anything, and the
-          angle is actually spread evenly across 0–180° (that ±52°). The{' '}
-          <span className="font-mono">1/√d</span> clamping is what takes over the
-          moment you add more dimensions.
         </p>
       </Detail>
 
