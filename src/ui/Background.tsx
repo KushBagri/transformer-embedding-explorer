@@ -16,24 +16,24 @@ export function Background() {
       <div
         className="aurora"
         style={{
-          width: '60vw',
-          height: '60vw',
-          left: '-12vw',
-          top: '-18vh',
-          background: 'radial-gradient(circle, rgba(167,139,250,0.55), transparent 62%)',
-          opacity: 0.5,
+          width: '70vw',
+          height: '70vw',
+          left: '-16vw',
+          top: '-22vh',
+          background: 'radial-gradient(circle, rgba(167,139,250,0.5), transparent 70%)',
+          opacity: 0.6,
           animationDuration: '32s',
         }}
       />
       <div
         className="aurora"
         style={{
-          width: '55vw',
-          height: '55vw',
-          right: '-14vw',
-          top: '28vh',
-          background: 'radial-gradient(circle, rgba(34,211,238,0.4), transparent 62%)',
-          opacity: 0.42,
+          width: '64vw',
+          height: '64vw',
+          right: '-18vw',
+          top: '26vh',
+          background: 'radial-gradient(circle, rgba(34,211,238,0.38), transparent 70%)',
+          opacity: 0.5,
           animationDuration: '40s',
           animationDirection: 'alternate',
         }}
@@ -41,20 +41,17 @@ export function Background() {
       <div
         className="aurora"
         style={{
-          width: '48vw',
-          height: '48vw',
-          left: '30vw',
-          bottom: '-22vh',
-          background: 'radial-gradient(circle, rgba(245,158,11,0.28), transparent 60%)',
-          opacity: 0.4,
+          width: '56vw',
+          height: '56vw',
+          left: '28vw',
+          bottom: '-26vh',
+          background: 'radial-gradient(circle, rgba(245,158,11,0.26), transparent 70%)',
+          opacity: 0.5,
           animationDuration: '48s',
         }}
       />
-      {/* film grain */}
-      <div
-        className="absolute inset-0"
-        style={{ backgroundImage: GRAIN, opacity: 0.045, mixBlendMode: 'overlay' }}
-      />
+      {/* film grain — plain opacity (no blend mode, which would force repaint on scroll) */}
+      <div className="absolute inset-0" style={{ backgroundImage: GRAIN, opacity: 0.03 }} />
       {/* vignette to focus the center */}
       <div
         className="absolute inset-0"

@@ -114,12 +114,14 @@ input[type='range'] {
   }
 }
 
+/* No filter:blur / mix-blend-mode here on purpose — both force full-screen
+   recompositing on every scroll frame. The radial gradients are already soft,
+   so the glow holds up, and a transform-only drift stays GPU-cheap. */
 .aurora {
   position: absolute;
   border-radius: 50%;
-  filter: blur(90px);
-  mix-blend-mode: screen;
   will-change: transform;
+  transform: translateZ(0);
   animation: auroraDrift ease-in-out infinite;
 }
 

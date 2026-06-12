@@ -20,7 +20,7 @@ function Hero() {
     <header className="relative mx-auto flex min-h-screen max-w-4xl flex-col items-center justify-center px-6 text-center">
       <motion.div
         {...show(0)}
-        className="mb-7 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-medium uppercase tracking-[0.25em] text-prose-dim backdrop-blur-sm"
+        className="mb-7 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-medium uppercase tracking-[0.25em] text-prose-dim"
       >
         <span className="h-1.5 w-1.5 rounded-full bg-combined shadow-[0_0_10px_2px_rgba(167,139,250,0.8)]" />
         Transformer Embedding Explorer

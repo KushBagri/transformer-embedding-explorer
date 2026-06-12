@@ -5,6 +5,7 @@
 // structure cleanly (real embeddings do this in hundreds of dimensions).
 
 import { useState } from 'react'
+import { AdditiveBlending } from 'three'
 import { Html } from '@react-three/drei'
 import { SectionShell } from './SectionShell'
 import { Card } from '../ui/Card'
@@ -50,15 +51,45 @@ function WordPoint({
   onOut: () => void
 }) {
   return (
-    <group>
-      <mesh position={word.p} onPointerOver={onOver} onPointerOut={onOut}>
-        <sphereGeometry args={[hovered ? 0.16 : 0.11, 18, 18]} />
-        <meshStandardMaterial color={AMBER} transparent opacity={dim ? 0.25 : 1} />
+    <group position={word.p}>
+      {/* soft additive glow halo on hover */}
+      {hovered && (
+        <mesh>
+          <sphereGeometry args={[0.44, 24, 24]} />
+          <meshBasicMaterial
+            color={AMBER}
+            transparent
+            opacity={0.16}
+            blending={AdditiveBlending}
+            depthWrite={false}
+          />
+        </mesh>
+      )}
+      {/* the word point — emissive so the whole constellation glows */}
+      <mesh onPointerOver={onOver} onPointerOut={onOut} scale={hovered ? 1.55 : 1}>
+        <sphereGeometry args={[0.12, 24, 24]} />
+        <meshStandardMaterial
+          color={AMBER}
+          emissive={AMBER}
+          emissiveIntensity={hovered ? 1.5 : 0.4}
+          roughness={0.35}
+          transparent
+          opacity={dim ? 0.25 : 1}
+          toneMapped={false}
+        />
       </mesh>
-      <Html position={word.p} center>
+      <Html position={[0, 0.34, 0]} center>
         <span
-          className="pointer-events-none -translate-y-5 whitespace-nowrap rounded bg-black/55 px-1.5 py-0.5 font-mono text-xs"
-          style={{ color: AMBER, opacity: dim ? 0.4 : 1, fontWeight: hovered ? 700 : 400 }}
+          className="pointer-events-none whitespace-nowrap rounded-md border px-2 py-0.5 font-mono text-xs transition-all duration-200"
+          style={{
+            color: hovered ? '#ffffff' : AMBER,
+            backgroundColor: hovered ? 'rgba(245,158,11,0.22)' : 'rgba(0,0,0,0.5)',
+            borderColor: hovered ? AMBER : 'transparent',
+            boxShadow: hovered ? '0 0 16px 2px rgba(245,158,11,0.55)' : 'none',
+            opacity: dim ? 0.4 : 1,
+            transform: hovered ? 'scale(1.18)' : 'scale(1)',
+            fontWeight: hovered ? 700 : 500,
+          }}
         >
           {word.w}
         </span>
