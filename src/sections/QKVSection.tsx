@@ -118,13 +118,14 @@ export function QKVSection() {
             × W_Q &nbsp; × W_K &nbsp; × W_V &nbsp;↓
           </p>
 
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-4">
             <Lane letter="Q" name="query" role="what it's looking for" color={Q_COLOR} values={q} />
             <Lane letter="K" name="key" role="what it offers" color={K_COLOR} values={k} />
             <Lane letter="V" name="value" role="what it carries" color={V_COLOR} values={v} />
           </div>
 
-          <Detail summary="Show the learned read-out matrices">
+          <div className="mt-7 border-t border-white/10 pt-5">
+            <Detail summary="Show the learned read-out matrices">
             <p className="text-sm">
               Each output cell is one row of a matrix dotted with the combined
               vector — a projection. The matrix is the stack of read-out
@@ -140,7 +141,8 @@ export function QKVSection() {
                 ),
               )}
             </div>
-          </Detail>
+            </Detail>
+          </div>
         </Card>
       )}
     >
@@ -180,6 +182,48 @@ export function QKVSection() {
         score, do it for every pair, and softmax each row — and you have exactly
         the attention grid in the next section.
       </p>
+
+      <Detail summary="Going deeper: why a dot product, the √d scaling, and many heads">
+        <p>
+          <strong className="text-prose-bright">Why a dot product means "relevant".</strong>{' '}
+          The score is <MathInline>q · k = |q| |k| cos θ</MathInline>, where θ is
+          the angle between the query and the key. It's largest when they point
+          the <em>same</em> way. So a query is literally an arrow pointing toward
+          the kind of key it wants: aligned keys score high, perpendicular keys
+          score ~0 (the orthogonality idea again), opposite keys score negative.
+          After the softmax, the aligned keys collect most of the attention.
+        </p>
+        <p>
+          <strong className="text-prose-bright">The √d scaling.</strong> Before the
+          softmax, scores are divided by <MathInline>√d_head</MathInline>. A dot
+          product is a sum of <MathInline>d_head</MathInline> little products, so
+          its size tends to grow like <MathInline>√d_head</MathInline>. Left
+          unscaled, big heads produce big scores, and a softmax over big scores
+          collapses to almost all-or-nothing — one token gets ~100%, and the
+          gradients that train the model vanish. Dividing by{' '}
+          <MathInline>√d_head</MathInline> keeps the scores around unit size so
+          attention stays soft and trainable.
+        </p>
+        <p>
+          <strong className="text-prose-bright">Many heads at once.</strong> A real
+          layer doesn't use one set of <MathInline>W_Q/W_K/W_V</MathInline> — it
+          uses several (say 8), each projecting into its own little subspace
+          (<MathInline>d_head = d_model / heads</MathInline>). Each head is an
+          independent set of read-out directions, so <em>one</em> head can
+          specialise in "look at the previous token" (positional) while{' '}
+          <em>another</em> does "look at related words" (semantic), in parallel.
+          Their outputs are concatenated and mixed by one more matrix. That's
+          multi-head attention.
+        </p>
+        <p>
+          <strong className="text-prose-bright">Real sizes vs. this toy.</strong> A
+          production model runs <MathInline>d_model ≈ 512–1024</MathInline>,{' '}
+          8–16 heads, <MathInline>d_head ≈ 64</MathInline>. This explorer uses{' '}
+          <MathInline>d_model = 16</MathInline>, a single head, and{' '}
+          <MathInline>d_head = 8</MathInline> — identical machinery, numbers small
+          enough that you can actually read every cell.
+        </p>
+      </Detail>
 
       <Callout accent="combined">
         Query, key and value are one combined vector read three ways. Those

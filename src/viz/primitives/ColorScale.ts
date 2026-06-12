@@ -3,15 +3,12 @@
 // D3 scales for matrix/heatmap values.
 
 import { interpolateRdBu, interpolateViridis } from 'd3-scale-chromatic'
-import { scaleLinear } from 'd3-scale'
 
 export const ROLE_COLOR = {
   token: '#f59e0b',
   position: '#22d3ee',
   combined: '#a78bfa',
 } as const
-
-export type Role = keyof typeof ROLE_COLOR
 
 /**
  * Diverging color for signed values (e.g. embedding / PE entries) mapped onto
@@ -39,6 +36,3 @@ export function absMax(data: ArrayLike<number>): number {
   }
   return m
 }
-
-/** Convenience re-export for primitives that need a linear scale. */
-export { scaleLinear }

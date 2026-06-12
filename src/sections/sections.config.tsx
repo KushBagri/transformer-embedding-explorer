@@ -9,9 +9,8 @@ import { HighDimSection } from './HighDimSection'
 import { SinusoidalSection } from './SinusoidalSection'
 import { QKVSection } from './QKVSection'
 import { AttentionSection } from './AttentionSection'
-// 3D sections are lazy (code-split three.js / r3f) — see *Lazy modules.
-import { EmbeddingSection } from './EmbeddingLazy'
-import { RecoverySection } from './RecoveryLazy'
+// 3D sections are lazy (code-split three.js / r3f) — see threeSections.
+import { EmbeddingSection, RecoverySection } from './threeSections'
 
 export interface SectionEntry {
   id: string
