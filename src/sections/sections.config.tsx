@@ -6,6 +6,7 @@ import { MotivationSection } from './MotivationSection'
 import { ColdOpenSection } from './ColdOpenSection'
 import { AdditionSection } from './AdditionSection'
 import { HighDimSection } from './HighDimSection'
+import { DifferentiationSection } from './DifferentiationSection'
 import { SinusoidalSection } from './SinusoidalSection'
 import { QKVSection } from './QKVSection'
 import { AttentionSection } from './AttentionSection'
@@ -24,6 +25,7 @@ export const SECTIONS: SectionEntry[] = [
   { id: 'addition', Component: AdditionSection },
   { id: 'high-dim', Component: HighDimSection },
   { id: 'recovery', Component: RecoverySection },
+  { id: 'differentiate', Component: DifferentiationSection },
   { id: 'sinusoidal', Component: SinusoidalSection },
   { id: 'qkv', Component: QKVSection },
   { id: 'attention', Component: AttentionSection },
