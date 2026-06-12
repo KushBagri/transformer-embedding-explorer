@@ -2,7 +2,6 @@
 
 import { motion, useReducedMotion } from 'framer-motion'
 import { SECTIONS } from '../sections/sections.config'
-import { PlaceholderSection } from '../sections/PlaceholderSection'
 
 function Hero() {
   const reduce = useReducedMotion()
@@ -51,12 +50,12 @@ export function Scrollytelling() {
   return (
     <main>
       <Hero />
-      {SECTIONS.map((section) => (
-        <PlaceholderSection key={section.id} {...section} />
+      {SECTIONS.map(({ id, Component }) => (
+        <Component key={id} />
       ))}
       <footer className="mx-auto max-w-4xl px-6 py-24 text-center text-sm text-prose-dim">
-        More sections coming — 3D vector space, sinusoidal encoding, attention,
-        and a free-play sandbox.
+        Coming next — a 3D vector space, recovering the parts by projection,
+        how the subspaces are learned, Q/K/V, and a free-play sandbox.
       </footer>
     </main>
   )

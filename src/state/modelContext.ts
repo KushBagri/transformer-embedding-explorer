@@ -53,7 +53,10 @@ export interface ModelValue extends ModelInputs, DerivedModel {
 /** Pure derivation: ModelInputs -> all matrices. No React, easy to test. */
 export function deriveModel(input: ModelInputs): DerivedModel {
   const { tokens, dModel, dHead, seed, peKind, temperature } = input
-  const seqLen = Math.max(tokens.length, 1)
+  // Use the true length: an empty sentence yields empty (0-row) matrices that
+  // flow through every op without throwing, rather than a 1-row PE table that
+  // would mismatch the 0-row token embeddings.
+  const seqLen = tokens.length
 
   const tokenEmb = embedTokens(tokens, dModel, seed)
 
