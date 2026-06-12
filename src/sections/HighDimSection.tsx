@@ -9,6 +9,7 @@ import { SectionShell } from './SectionShell'
 import { Card } from '../ui/Card'
 import { Callout } from '../ui/Callout'
 import { Slider } from '../ui/Slider'
+import { Detail } from '../ui/Detail'
 import { mulberry32, gaussian } from '../math/rng'
 import { cosine } from '../math/vector'
 
@@ -130,15 +131,19 @@ export function HighDimSection() {
       )}
     >
       <p>
-        You might object: even in <strong>2D</strong>, two random arrows are{' '}
-        <em>on average</em> 90° apart, so what's special? You'd be right — the{' '}
-        <em>average</em> is 90° in every dimension. The average is not the point.
+        Last section left us with a condition: meaning and position can only be
+        pulled back apart if they point in <strong>different directions</strong> —
+        ideally perpendicular ones, so neither leaks into the other. So the real
+        question is: can the model always <em>find</em> enough perpendicular
+        directions to give every signal its own? That depends on how many
+        dimensions it has.
       </p>
       <p>
-        What matters is the <strong className="text-combined-soft">spread</strong>.
-        In 2D the angle is equally likely to be anything from 0° to 180°: loads of
-        pairs come out nearly parallel (lots of overlap) or nearly opposite. The
-        histogram is flat. Now raise the dimensionality and watch the ± shrink.
+        Start in <strong>2D</strong> — a flat sheet. If meaning points east, the
+        only direction that doesn't overlap it at all is due north. Pick a
+        direction at random and it almost always lands somewhere diagonal,{' '}
+        <em>partly on top of</em> meaning. Two random arrows here can sit at
+        practically any angle — the chart is flat and the spread is a huge ±52°.
       </p>
       <Slider
         label="dimensionality"
@@ -150,16 +155,41 @@ export function HighDimSection() {
         onChange={setDimIndex}
       />
       <p>
-        As dimensions grow, the distribution{' '}
-        <strong className="text-combined-soft">clamps down around 90°</strong>.
-        It's not that the average moves — it's that 90° becomes almost the{' '}
-        <em>only</em> outcome. By a few hundred dimensions, nearly every pair of
-        random directions is perpendicular to within a few degrees.
+        Now drag the slider up, and here's the surprise: as you add dimensions,
+        two directions picked at random become almost exactly perpendicular{' '}
+        <em>on their own</em>. The histogram collapses to a spike at 90° and the
+        ± shrinks toward zero. By a few hundred dimensions, nearly every pair is
+        within a couple of degrees of a right angle.
       </p>
+      <p>
+        Perpendicular means <strong className="text-combined-soft">non-interfering</strong>:
+        reading off "meaning" picks up essentially nothing of "position", and the
+        reverse. High dimensions hand out a near-endless supply of these
+        non-interfering directions — so the model can give meaning its own,
+        position its own, and thousands of other features each their own, then
+        stack them all by addition without them bleeding together.
+      </p>
+
+      <Detail summary="What does 'interfere' actually mean here?">
+        <p>
+          Think of two audio tracks. Record a voice and a guitar onto{' '}
+          <em>separate</em> tracks and you can still isolate each later. Mix them
+          onto the <em>same</em> track and they're fused — boosting the voice
+          boosts the guitar too. Directions in vector space are those tracks.
+        </p>
+        <p>
+          When meaning and position sit on perpendicular directions, the linear
+          "read it back out" step (a dot product) that recovers meaning multiplies
+          position by ~zero, so position contributes nothing to the answer — no
+          interference. When the directions overlap, recovering one drags in some
+          of the other.
+        </p>
+      </Detail>
+
       <Callout accent="combined">
-        That's the "room": meaning can claim a direction and be almost certain
-        nothing else is sitting on top of it. So position can take its own
-        direction too — and adding the two barely disturbs either one.
+        That's the "room": in high dimensions, meaning can claim a direction and
+        be almost certain nothing else is sitting on top of it. Adding position on
+        its own direction barely disturbs it — and the sum stays separable.
       </Callout>
     </SectionShell>
   )

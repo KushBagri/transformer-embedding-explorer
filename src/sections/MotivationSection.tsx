@@ -22,47 +22,57 @@ function shuffled<T>(arr: T[]): T[] {
 
 function MotivationVisual() {
   const model = useModel()
-  const [order, setOrder] = useState<string[]>(model.tokens)
+  const [custom, setCustom] = useState<string[] | null>(null)
   const [showPos, setShowPos] = useState(false)
-
-  // keep in sync if the sentence changes elsewhere
-  const words = order.length === model.tokens.length ? order : model.tokens
+  const words = custom ?? model.tokens
 
   return (
     <Card>
-      <p className="mb-3 text-sm text-prose-dim">
-        a transformer sees all tokens at once — a set, not a sequence
+      <p className="mb-4 text-sm text-prose-dim">
+        the sentence as a transformer receives it — every token at once
       </p>
 
-      <div className="mb-5 flex min-h-24 flex-wrap items-stretch gap-2">
+      <div className="mb-5 flex flex-wrap items-end gap-2">
         {words.map((w, i) => (
-          <div
-            key={`${w}-${i}`}
-            className="flex flex-col items-center justify-center rounded-xl bg-token/15 px-4 py-3 text-token-soft"
-          >
-            <span className="font-mono text-lg">{w}</span>
-            {showPos && (
-              <span className="mt-1 rounded bg-position/20 px-1.5 text-xs text-position-soft">
-                pos {i}
-              </span>
-            )}
+          <div key={`${w}-${i}`} className="flex flex-col items-center gap-1">
+            <span className="text-[10px] uppercase tracking-wider text-prose-dim">
+              slot {i}
+            </span>
+            <div
+              className={`flex w-20 flex-col items-center rounded-xl border px-2 py-3 transition-colors ${
+                showPos
+                  ? 'border-combined/60 bg-combined/15'
+                  : 'border-token/50 bg-token/15'
+              }`}
+            >
+              <span className="font-mono text-base text-token-soft">{w}</span>
+              {showPos && (
+                <span className="mt-2 rounded bg-position/20 px-1.5 py-0.5 font-mono text-[11px] text-position-soft">
+                  + pos {i}
+                </span>
+              )}
+            </div>
           </div>
         ))}
       </div>
 
-      <div className="flex flex-col gap-3">
-        <Toggle label="stamp each slot with its position" checked={showPos} onChange={setShowPos} />
+      <div className="flex flex-col gap-3 border-t border-edge pt-4">
+        <Toggle
+          label="add a position vector to each token"
+          checked={showPos}
+          onChange={setShowPos}
+        />
         <button
           type="button"
-          onClick={() => setOrder(shuffled(words))}
-          className="rounded-lg border border-edge bg-surface-2 px-3 py-2 text-sm text-prose hover:border-combined"
+          onClick={() => setCustom(shuffled(words))}
+          className="self-start rounded-lg border border-edge bg-surface-2 px-3 py-1.5 text-sm text-prose transition-colors hover:border-combined hover:text-prose-bright"
         >
-          ⤮ shuffle the words
+          ⤮ shuffle the word order
         </button>
-        <p className="text-sm text-prose-dim">
+        <p className="text-sm leading-relaxed text-prose-dim">
           {showPos
-            ? 'With position tags, shuffling changes which word sits where — order is now part of the input.'
-            : 'Without position tags, a shuffle gives the model the exact same bag of vectors. Order is invisible to it.'}
+            ? 'Each token now carries which slot it came from. Shuffle and slot 0 holds a different word — the input genuinely changed.'
+            : 'Without position, a shuffle hands the model the exact same bag of vectors. It literally cannot tell the orders apart.'}
         </p>
       </div>
     </Card>
@@ -79,26 +89,26 @@ export function MotivationSection() {
     >
       <p>
         An RNN reads a sentence one word at a time, left to right. Order comes
-        for free — it <em>is</em> the order of processing. The model literally
-        can't see word 5 before it has walked through words 1–4.
+        for free — it <em>is</em> the order of reading. The model can't reach
+        word 5 until it has walked through words 1–4.
       </p>
       <p>
         A transformer is different: it looks at <strong>every token at once</strong>,
-        in parallel. That's what makes it fast and powerful — but it also means
-        self-attention treats the input as an unordered <em>set</em>. To a
-        transformer, <span className="font-mono text-token-soft">dog bites man</span>{' '}
-        and <span className="font-mono text-token-soft">man bites dog</span> are
-        the same bag of vectors. Try the shuffle.
+        in parallel. That's what makes it fast — but it also means attention
+        treats the input as an unordered <em>set</em>. To a transformer,{' '}
+        <span className="font-mono text-token-soft">dog bites man</span> and{' '}
+        <span className="font-mono text-token-soft">man bites dog</span> start out
+        as the same bag of vectors. Hit shuffle and watch.
       </p>
       <p>
-        So we have to <em>hand</em> the model the order. The trick the original
-        transformer uses is almost suspiciously simple: take each token's
+        So we have to <em>hand</em> the model the order. The original
+        transformer's fix is almost suspiciously simple: take each token's
         embedding and <strong className="text-combined-soft">add</strong> a second
-        vector that says where it sits.
+        vector that says which slot it sits in. Flip the toggle to attach those.
       </p>
       <Callout accent="neutral">
-        Position isn't free here like it is in an RNN — we have to inject it. And
-        the way we inject it is by addition. Which raises an obvious worry…
+        Order is free in an RNN. In a transformer we have to inject it — and the
+        way we inject it is by addition. Which raises an obvious worry…
       </Callout>
     </SectionShell>
   )

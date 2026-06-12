@@ -48,19 +48,40 @@ export function AttentionSection() {
       )}
     >
       <p>
-        Picture every token in a room. Each one holds up a{' '}
-        <strong>query</strong> — "here's what I'm looking for" — and a{' '}
-        <strong>key</strong> — "here's what I offer." Both are just linear
-        projections of that token's combined vector.
+        Words only mean something in context. In{' '}
+        <span className="italic text-prose-bright">
+          "the animal didn't cross the road because <strong>it</strong> was tired"
+        </span>
+        , what does <em>"it"</em> point to — the animal or the road? To resolve
+        that, the word <em>"it"</em> has to <strong>look at</strong> the other
+        words. Attention is the mechanism that lets every word gather information
+        from the rest. Here's how it works, in three steps.
       </p>
+      <ol className="flex list-decimal flex-col gap-2 pl-5 marker:text-prose-dim">
+        <li>
+          <strong className="text-prose-bright">Ask and offer.</strong> From its
+          combined vector, each word builds a <strong>query</strong> ("what am I
+          looking for?") and a <strong>key</strong> ("what do I offer?"). Both are
+          just small vectors — linear projections of the embedding.
+        </li>
+        <li>
+          <strong className="text-prose-bright">Score the matches.</strong> For
+          every pair, take the dot product of one word's query with another's
+          key. Aligned ⇒ high score ⇒ "you're relevant to me." A softmax turns
+          each word's row of scores into an <strong>attention budget</strong> —
+          percentages that add up to 100%.
+        </li>
+        <li>
+          <strong className="text-prose-bright">Blend.</strong> Each word then
+          pulls in a mix of everyone's <strong>value</strong> vectors, weighted by
+          that budget — its new, context-aware version of itself.
+        </li>
+      </ol>
       <p>
-        To decide how much token <em>i</em> should listen to token <em>j</em>,
-        take the <strong>dot product</strong> of i's query with j's key: aligned
-        directions score high (relevant), unaligned score low. Softmax turns each
-        row of scores into an attention budget that sums to 1 — a row says "I
-        spend this fraction of my attention on each other token." The token then
-        pulls in a blend of everyone's <strong>value</strong> vectors, weighted by
-        that budget. Hover a row to trace one token's budget.
+        The grid on the right is that budget. <strong>Each row is one word
+        looking</strong>; the columns are who it looks at; brighter = more
+        attention. Every row sums to 1. Hover a row to trace a single word's
+        attention.
       </p>
 
       <Detail summary="Where does position come into this?">
