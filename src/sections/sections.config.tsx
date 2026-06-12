@@ -7,6 +7,7 @@ import { ColdOpenSection } from './ColdOpenSection'
 import { AdditionSection } from './AdditionSection'
 import { HighDimSection } from './HighDimSection'
 import { SinusoidalSection } from './SinusoidalSection'
+import { QKVSection } from './QKVSection'
 import { AttentionSection } from './AttentionSection'
 // 3D sections are lazy (code-split three.js / r3f) — see *Lazy modules.
 import { EmbeddingSection } from './EmbeddingLazy'
@@ -25,5 +26,6 @@ export const SECTIONS: SectionEntry[] = [
   { id: 'high-dim', Component: HighDimSection },
   { id: 'recovery', Component: RecoverySection },
   { id: 'sinusoidal', Component: SinusoidalSection },
+  { id: 'qkv', Component: QKVSection },
   { id: 'attention', Component: AttentionSection },
 ]
