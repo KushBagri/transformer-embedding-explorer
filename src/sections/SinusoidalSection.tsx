@@ -33,7 +33,7 @@ export function SinusoidalSection() {
   const [cursor, setCursor] = useState(4)
 
   const pe = useMemo(() => sinusoidalPE(seqLen, dModel), [seqLen, dModel])
-  const binary = useMemo(() => binaryCounter(16, 4), [])
+  const binary = useMemo(() => binaryCounter(8, 3), [])
   const cursorPos = Math.min(cursor, seqLen - 1)
 
   const waves = useMemo<Series[]>(() => {
@@ -79,21 +79,35 @@ export function SinusoidalSection() {
       </p>
 
       <p>
-        Borrow a trick from <strong>binary counting</strong>. Watch how the digits
-        flip as you count up: the rightmost bit flips every step, the next every
-        two steps, the next every four:
+        Borrow a trick from <strong>binary counting</strong>. Count up
+        0, 1, 2, 3 and write each as bits:{' '}
+        <span className="font-mono">000, 001, 010, 011…</span> Look at the
+        columns. The <strong>rightmost</strong> bit flips every single step
+        (0,1,0,1,…); the <strong>middle</strong> bit flips half as often
+        (0,0,1,1,…); the <strong>leftmost</strong> half as often again. Each
+        column is a counter running at its own speed.
       </p>
       <div className="rounded-xl border border-edge bg-surface-2 p-3">
-        <Heatmap data={binary} mode="sequential" cell={22} xTitle="bit (left = flips fastest)" yTitle="number" />
+        <Heatmap
+          data={binary}
+          mode="sequential"
+          cell={26}
+          rowLabels={['0', '1', '2', '3', '4', '5', '6', '7']}
+          colLabels={['×1', '×2', '×4']}
+          xTitle="bit (left flips fastest)"
+          yTitle="number"
+        />
         <p className="mt-1 text-center text-xs text-prose-dim">
-          0…15 in binary — no single column is unique, but the <em>combination</em> names each number
+          0–7 in binary (bright = 1). No single column is unique, but the
+          <em> row pattern</em> names each number exactly.
         </p>
       </div>
       <p>
-        No single column identifies a number, yet the full <em>pattern</em> of a
-        row does — uniquely. That's the key move: combine a few "wheels" spinning
-        at different rates and you can count very high without any single wheel
-        needing many states.
+        Here's the punchline: <strong>no single column</strong> tells you the
+        number — but the <strong>combination</strong> of columns does, uniquely.
+        A handful of wheels spinning at different speeds can count very high
+        without any one wheel needing many positions. That's the idea sinusoidal
+        encoding steals.
       </p>
 
       <p>

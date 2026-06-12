@@ -67,8 +67,10 @@ export function Heatmap({
 
   return (
     <svg
-      width="100%"
+      width={width}
+      height={height}
       viewBox={`0 0 ${width} ${height}`}
+      className="h-auto max-w-full"
       role="img"
       onMouseLeave={onHoverRow ? () => onHoverRow(null) : undefined}
     >

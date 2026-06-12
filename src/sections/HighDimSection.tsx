@@ -14,7 +14,7 @@ import { mulberry32, gaussian } from '../math/rng'
 import { cosine } from '../math/vector'
 
 const DIMS = [2, 3, 8, 16, 32, 64, 128, 256, 512, 1024]
-const SAMPLES = 600
+const SAMPLES = 4000 // enough that the spread estimate is stable (~52° at 2D)
 const BINS = 36 // 5° each over 0..180
 
 function randomUnit(dim: number, rng: () => number): Float32Array {
@@ -30,7 +30,7 @@ function randomUnit(dim: number, rng: () => number): Float32Array {
 }
 
 function computeAngles(dim: number) {
-  const rng = mulberry32(20240611)
+  const rng = mulberry32(1)
   const counts = new Array(BINS).fill(0)
   let angleSum = 0
   let angleSqSum = 0
@@ -143,7 +143,9 @@ export function HighDimSection() {
         only direction that doesn't overlap it at all is due north. Pick a
         direction at random and it almost always lands somewhere diagonal,{' '}
         <em>partly on top of</em> meaning. Two random arrows here can sit at
-        practically any angle — the chart is flat and the spread is a huge ±52°.
+        practically any angle: the chart is flat, and the spread is a huge{' '}
+        <strong>±52°</strong> (that's 180/√12 — the spread of a perfectly even
+        range of angles from 0° to 180°).
       </p>
       <Slider
         label="dimensionality"
@@ -169,6 +171,44 @@ export function HighDimSection() {
         position its own, and thousands of other features each their own, then
         stack them all by addition without them bleeding together.
       </p>
+
+      <p>
+        One thing to be precise about: what matters is that the directions are{' '}
+        <strong>perpendicular</strong>, <em>not</em> that they sit on "separate
+        coordinates." Lining meaning up with axis 1 and position with axis 2 is
+        just the easiest perpendicular arrangement to picture — but{' '}
+        <span className="font-mono">(1, 1)</span> and{' '}
+        <span className="font-mono">(1, −1)</span> are perpendicular too, and
+        neither is a single axis. The network usually uses tilted directions like
+        that. The right angle is the whole point; the coordinate grid is not.
+      </p>
+
+      <Detail summary="Proof: why the angle locks onto 90° as dimensions grow">
+        <p>
+          The cosine of the angle between two unit vectors is just their dot
+          product — add up the products of matching components:{' '}
+          <span className="font-mono">cos = a₁b₁ + a₂b₂ + … + a_d b_d</span>.
+        </p>
+        <p>
+          For random vectors, each term <span className="font-mono">aᵢbᵢ</span> is
+          equally likely to be a little positive or a little negative. Adding{' '}
+          <span className="font-mono">d</span> of these is a random walk of{' '}
+          <span className="font-mono">d</span> coin-flip-sized steps: the steps
+          mostly cancel, and the leftover sum grows only like{' '}
+          <span className="font-mono">√d</span>. Meanwhile dividing by the vector
+          lengths normalizes by about <span className="font-mono">d</span>. So the
+          cosine shrinks like <span className="font-mono">√d / d = 1/√d</span> → 0.
+        </p>
+        <p>
+          Concretely the typical overlap is{' '}
+          <span className="font-mono">|cos| ≈ √(2/πd)</span>. Drag the slider to{' '}
+          512 and read the "typical overlap" number under the chart: it sits right
+          next to <span className="font-mono">√(2/π·512) ≈ 0.035</span> — the
+          simulation and the formula agree to within sampling noise. Cosine near 0
+          means angle near 90°, and the spread closes like{' '}
+          <span className="font-mono">1/√d</span>.
+        </p>
+      </Detail>
 
       <Detail summary="What does 'interfere' actually mean here?">
         <p>
