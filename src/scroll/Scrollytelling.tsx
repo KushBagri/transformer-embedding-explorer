@@ -1,5 +1,6 @@
 // Top-level narrative spine: a hero, the ordered sections, and a footer.
 
+import { Suspense } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { SECTIONS } from '../sections/sections.config'
 
@@ -50,9 +51,15 @@ export function Scrollytelling() {
   return (
     <main>
       <Hero />
-      {SECTIONS.map(({ id, Component }) => (
-        <Component key={id} />
-      ))}
+      <Suspense
+        fallback={
+          <div className="py-24 text-center text-sm text-prose-dim">loading…</div>
+        }
+      >
+        {SECTIONS.map(({ id, Component }) => (
+          <Component key={id} />
+        ))}
+      </Suspense>
       <footer className="mx-auto max-w-4xl px-6 py-24 text-center text-sm text-prose-dim">
         Coming next — a 3D vector space, recovering the parts by projection,
         how the subspaces are learned, Q/K/V, and a free-play sandbox.
