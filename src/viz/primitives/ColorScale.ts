@@ -4,10 +4,23 @@
 
 import { interpolateRdBu, interpolateViridis } from 'd3-scale-chromatic'
 
+/**
+ * The load-bearing color contract, mirrored from the CSS `@theme` tokens in
+ * index.css. This is the single source of truth for inline SVG / `style` colors
+ * (Tailwind classes like `text-token-soft` cover the className side). Sections
+ * must import these rather than re-declaring the hex values locally.
+ */
 export const ROLE_COLOR = {
-  token: '#f59e0b',
-  position: '#22d3ee',
-  combined: '#a78bfa',
+  token: '#f59e0b', // meaning  (amber)
+  position: '#22d3ee', // position (cyan)
+  combined: '#a78bfa', // combined (violet)
+} as const
+
+/** Read-out lane colors for the query / key / value projections. */
+export const QKV_COLOR = {
+  query: '#fb7185', // rose
+  key: '#34d399', // emerald
+  value: '#38bdf8', // sky
 } as const
 
 /**

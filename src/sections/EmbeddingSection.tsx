@@ -14,9 +14,9 @@ import { Toggle } from '../ui/Toggle'
 import { Analogy } from '../ui/Analogy'
 import { VectorScene } from '../viz/three/VectorScene'
 import { Arrow3D } from '../viz/three/Arrow3D'
+import { ROLE_COLOR } from '../viz/primitives/ColorScale'
 
-const AMBER = '#f59e0b'
-const VIOLET = '#a78bfa'
+const { token: AMBER, combined: VIOLET } = ROLE_COLOR
 
 type Vec3 = [number, number, number]
 

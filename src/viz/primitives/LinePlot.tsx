@@ -3,6 +3,7 @@
 
 import { line as d3line } from 'd3-shape'
 import { scaleLinear } from 'd3-scale'
+import { ROLE_COLOR } from './ColorScale'
 
 export interface Point {
   x: number
@@ -74,7 +75,7 @@ export function LinePlot({
           y1={PAD}
           x2={x(cursorX)}
           y2={height - PAD}
-          stroke="#a78bfa"
+          stroke={ROLE_COLOR.combined}
           strokeWidth={1.5}
           strokeDasharray="3 3"
         />

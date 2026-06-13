@@ -17,10 +17,9 @@ import { MathInline } from '../ui/MathInline'
 import { Formula } from '../ui/Formula'
 import { VectorScene } from '../viz/three/VectorScene'
 import { Arrow3D } from '../viz/three/Arrow3D'
+import { ROLE_COLOR } from '../viz/primitives/ColorScale'
 
-const AMBER = '#f59e0b'
-const CYAN = '#22d3ee'
-const VIOLET = '#a78bfa'
+const { token: AMBER, position: CYAN, combined: VIOLET } = ROLE_COLOR
 
 type Vec3 = [number, number, number]
 

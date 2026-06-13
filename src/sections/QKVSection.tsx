@@ -10,14 +10,12 @@ import { Callout } from '../ui/Callout'
 import { Detail } from '../ui/Detail'
 import { MathInline } from '../ui/MathInline'
 import { Heatmap } from '../viz/primitives/Heatmap'
-import { divergingColor, absMax } from '../viz/primitives/ColorScale'
+import { divergingColor, absMax, ROLE_COLOR, QKV_COLOR } from '../viz/primitives/ColorScale'
 import { useModel } from '../state/modelContext'
 import { row } from '../math/matrix'
 
-const Q_COLOR = '#fb7185' // rose
-const K_COLOR = '#34d399' // emerald
-const V_COLOR = '#38bdf8' // sky
-const COMBINED = '#a78bfa'
+const { query: Q_COLOR, key: K_COLOR, value: V_COLOR } = QKV_COLOR
+const COMBINED = ROLE_COLOR.combined
 
 /** A vector drawn as a strip of diverging-colored cells. */
 function VecStrip({ values, ring }: { values: number[]; ring?: string }) {

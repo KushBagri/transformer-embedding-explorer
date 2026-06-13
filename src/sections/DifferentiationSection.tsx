@@ -14,13 +14,12 @@ import { Analogy } from '../ui/Analogy'
 import { SubHeading } from '../ui/SubHeading'
 import { MathInline } from '../ui/MathInline'
 import { Axes2D } from '../viz/primitives/Axes2D'
+import { ROLE_COLOR } from '../viz/primitives/ColorScale'
 
 const M = 3 // meaning amount of the combined vector (fixed)
 const P = 2 // position amount
 const TUNER = '#e2e8f0'
-const AMBER = '#f59e0b'
-const CYAN = '#22d3ee'
-const VIOLET = '#a78bfa'
+const { token: AMBER, position: CYAN, combined: VIOLET } = ROLE_COLOR
 
 function Bar({ label, value, max, color }: { label: string; value: number; max: number; color: string }) {
   const pct = Math.min(100, (Math.abs(value) / max) * 100)

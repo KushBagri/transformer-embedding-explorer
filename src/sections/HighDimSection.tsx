@@ -15,6 +15,7 @@ import { SubHeading } from '../ui/SubHeading'
 import { MathInline } from '../ui/MathInline'
 import { mulberry32, gaussian } from '../math/rng'
 import { cosine } from '../math/vector'
+import { ROLE_COLOR } from '../viz/primitives/ColorScale'
 
 const DIMS = [2, 3, 8, 16, 32, 64, 128, 256, 512, 1024]
 const SAMPLES = 4000 // enough that the spread estimate is stable (~52° at 2D)
@@ -70,7 +71,7 @@ function Histogram({ counts }: { counts: number[] }) {
 
   return (
     <svg width="100%" viewBox={`0 0 ${W} ${H}`} role="img" className="rounded-xl bg-surface-2">
-      <line x1={x(90)} y1={PAD} x2={x(90)} y2={H - PAD} stroke="#a78bfa" strokeOpacity={0.5} strokeDasharray="3 3" />
+      <line x1={x(90)} y1={PAD} x2={x(90)} y2={H - PAD} stroke={ROLE_COLOR.combined} strokeOpacity={0.5} strokeDasharray="3 3" />
       {counts.map((c, i) => {
         const deg = (i + 0.5) * (180 / counts.length)
         const closeness = 1 - Math.abs(deg - 90) / 90
@@ -81,7 +82,7 @@ function Histogram({ counts }: { counts: number[] }) {
             y={y(c)}
             width={bw - 1}
             height={H - PAD - y(c)}
-            fill="#a78bfa"
+            fill={ROLE_COLOR.combined}
             opacity={0.35 + 0.55 * closeness}
           />
         )

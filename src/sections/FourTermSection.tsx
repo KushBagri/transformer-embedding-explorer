@@ -17,12 +17,11 @@ import { Analogy } from '../ui/Analogy'
 import { SubHeading } from '../ui/SubHeading'
 import { MathInline } from '../ui/MathInline'
 import { Heatmap } from '../viz/primitives/Heatmap'
-import { absMax } from '../viz/primitives/ColorScale'
+import { absMax, ROLE_COLOR, QKV_COLOR } from '../viz/primitives/ColorScale'
 import { useModel } from '../state/modelContext'
 import { PEKind, project, matmul, transpose, addMat, type Mat } from '../math'
 
-const AMBER = '#f59e0b' // meaning
-const CYAN = '#22d3ee' // position
+const { token: AMBER, position: CYAN, combined: VIOLET } = ROLE_COLOR
 
 interface Panel {
   key: string
@@ -41,6 +40,39 @@ function PairLabel({ panel }: { panel: Panel }) {
       <span className="text-prose-dim">→</span>
       <span style={{ color: panel.toColor }}>{panel.to}</span>
       <span className="text-prose-dim">· {panel.gloss}</span>
+    </div>
+  )
+}
+
+/** A row of token chips; the selected one is highlighted in `color`. */
+function ChipRow({
+  tokens,
+  value,
+  onPick,
+  color,
+}: {
+  tokens: string[]
+  value: number
+  onPick: (i: number) => void
+  color: string
+}) {
+  return (
+    <div className="flex flex-wrap gap-1">
+      {tokens.map((t, idx) => (
+        <button
+          key={`${t}-${idx}`}
+          type="button"
+          onClick={() => onPick(idx)}
+          className="rounded px-1.5 py-0.5 font-mono text-xs transition-colors"
+          style={
+            idx === value
+              ? { color, background: `${color}22`, boxShadow: `inset 0 0 0 1px ${color}77` }
+              : { color: '#9794ab', background: 'rgba(255,255,255,0.04)' }
+          }
+        >
+          {t}
+        </button>
+      ))}
     </div>
   )
 }
@@ -85,30 +117,10 @@ export function FourTermSection() {
   const smallCell = Math.max(15, Math.min(26, 150 / Math.max(count, 1)))
   const bigCell = Math.max(18, Math.min(34, 220 / Math.max(count, 1)))
 
-  const ChipRow = ({ value, onPick, color }: { value: number; onPick: (i: number) => void; color: string }) => (
-    <div className="flex flex-wrap gap-1">
-      {model.tokens.map((t, idx) => (
-        <button
-          key={`${t}-${idx}`}
-          type="button"
-          onClick={() => onPick(idx)}
-          className="rounded px-1.5 py-0.5 font-mono text-xs transition-colors"
-          style={
-            idx === value
-              ? { color, background: `${color}22`, boxShadow: `inset 0 0 0 1px ${color}77` }
-              : { color: '#9794ab', background: 'rgba(255,255,255,0.04)' }
-          }
-        >
-          {t}
-        </button>
-      ))}
-    </div>
-  )
-
   const terms = [
     { label: 'meaning ↔ meaning', v: cellAt(cc), color: AMBER },
-    { label: 'meaning ↔ position', v: cellAt(cp), color: '#a78bfa' },
-    { label: 'position ↔ meaning', v: cellAt(pc), color: '#a78bfa' },
+    { label: 'meaning ↔ position', v: cellAt(cp), color: VIOLET },
+    { label: 'position ↔ meaning', v: cellAt(pc), color: VIOLET },
     { label: 'position ↔ position', v: cellAt(pp), color: CYAN },
   ]
   const sum = cellAt(total)
@@ -176,11 +188,11 @@ export function FourTermSection() {
               <div className="flex flex-col gap-2">
                 <div className="flex items-center gap-2">
                   <span className="w-12 shrink-0 text-xs text-prose-dim">query</span>
-                  <ChipRow value={qSel} onPick={setQi} color="#a78bfa" />
+                  <ChipRow tokens={model.tokens} value={qSel} onPick={setQi} color={VIOLET} />
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="w-12 shrink-0 text-xs text-prose-dim">key</span>
-                  <ChipRow value={kSel} onPick={setKj} color="#a78bfa" />
+                  <ChipRow tokens={model.tokens} value={kSel} onPick={setKj} color={VIOLET} />
                 </div>
               </div>
 
@@ -214,8 +226,8 @@ export function FourTermSection() {
       </p>
       <p>
         Recall how attention compares two words: it takes the{' '}
-        <span style={{ color: '#fb7185' }}>query</span> of one and the{' '}
-        <span style={{ color: '#34d399' }}>key</span> of another and multiplies
+        <span style={{ color: QKV_COLOR.query }}>query</span> of one and the{' '}
+        <span style={{ color: QKV_COLOR.key }}>key</span> of another and multiplies
         them together — a single <strong>dot product</strong> that scores "how
         much should this word look at that one?" But the query and the key are both
         built from the <span className="text-combined-soft">combined</span> vector,
